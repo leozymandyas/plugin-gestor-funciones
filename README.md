@@ -18,15 +18,23 @@ Settings > Community plugins > Gestor Funciones > Options:
 
 Si intentas crear algo sin haber configurado la carpeta, el plugin muestra un aviso con un botón que abre la configuración.
 
-## Instalación manual
+## Instalación manual (descargando desde GitHub)
 
-Copia `manifest.json`, `main.js` y `styles.css` a:
+> Mientras el plugin no esté disponible en los _Community plugins_ oficiales de Obsidian, esta es la forma de instalarlo.
 
-```
-<vault>/.obsidian/plugins/gestor-funciones/
-```
+1. Descarga estos **tres archivos** desde este repositorio (botón derecho → "Guardar enlace como…", o ábrelos y usa el botón de descarga **Download raw file**):
+   - `manifest.json`
+   - `main.js`
+   - `styles.css`
+2. En tu vault de Obsidian, crea (si no existe) la carpeta:
+   ```
+   <tu-vault>/.obsidian/plugins/gestor-funciones/
+   ```
+   > La carpeta `.obsidian` está oculta. En Mac pulsa `Cmd + Shift + .` en Finder para ver carpetas ocultas.
+3. Copia los tres archivos descargados dentro de esa carpeta.
+4. Abre Obsidian, ve a **Settings → Community plugins**, activa el modo (si te lo pide) y enciende **Gestión Producto**.
 
-Luego activa **Gestor Funciones** en Settings > Community plugins.
+> 💡 Si actualizo el plugin, solo vuelve a descargar `main.js` (y `manifest.json` si cambió la versión) y reemplaza los archivos. Luego desactiva y reactiva el plugin en Obsidian.
 
 ## Desarrollo
 
