@@ -1,0 +1,716 @@
+/* ===== Gestor Funciones ===== */
+
+/* --- Panel lateral de acciones --- */
+.gf-acciones {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 12px 8px;
+}
+
+.gf-acciones-seccion {
+	font-size: var(--font-ui-smaller);
+	font-weight: 700;
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin-top: 10px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	user-select: none;
+}
+
+.gf-acciones-seccion:hover {
+	color: var(--text-normal);
+}
+
+.gf-acciones-chevron {
+	font-size: 10px;
+	width: 12px;
+}
+
+.gf-acciones-seccion:first-child {
+	margin-top: 0;
+}
+
+.gf-accion {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	text-align: left;
+	padding: 8px 10px;
+	border-radius: 6px;
+	cursor: pointer;
+	background-color: transparent;
+	border: 1px solid var(--background-modifier-border);
+	box-shadow: none;
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+}
+
+.gf-accion:hover {
+	background-color: var(--background-modifier-hover);
+	border-color: var(--interactive-accent);
+}
+
+.gf-accion-icono {
+	display: flex;
+	align-items: center;
+	color: var(--text-muted);
+}
+
+/* --- Modales --- */
+.gf-campo {
+	margin-bottom: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.gf-campo-label {
+	font-weight: 600;
+	font-size: var(--font-ui-small);
+}
+
+.gf-campo-input,
+.gf-campo-select {
+	width: 100%;
+}
+
+.gf-campo-error {
+	color: var(--text-error);
+	font-size: var(--font-ui-smaller);
+}
+
+.gf-campo-aviso {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	font-style: italic;
+}
+
+.gf-botones {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+/* --- Vista unificada (dashboard) --- */
+.gf-hidden {
+	display: none;
+}
+
+.gf-dash em {
+	color: var(--text-muted);
+}
+
+.gf-dash .gf-tarea-item {
+	list-style: none;
+}
+
+.gf-dash .task-list-item-checkbox {
+	margin-right: 6px;
+}
+
+.gf-dash .internal-link {
+	cursor: pointer;
+}
+
+/* Contador de elementos junto al encabezado de sección */
+.gf-contador {
+	font-size: var(--font-ui-small);
+	font-weight: 400;
+	color: var(--text-muted);
+}
+
+/* --- Callout de link ([!link]) --- */
+.callout[data-callout="link"] {
+	--callout-color: 80, 130, 255; /* Azul */
+	--callout-icon: "🔗";
+	--callout-icon: lucide-link; /* nombre de ícono que Obsidian sí puede renderizar */
+	background-color: rgba(80, 130, 255, 0.08);
+	border-left: 4px solid rgb(80, 130, 255);
+	border-radius: 6px;
+}
+
+.callout[data-callout="link"] .callout-title {
+	color: rgb(80, 130, 255);
+	font-weight: 600;
+}
+
+/* --- Tablero Kanban (pestaña completa) --- */
+.gf-kanban {
+	padding: 12px;
+	overflow: auto;
+}
+
+.gf-kanban-aviso {
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	align-items: flex-start;
+}
+
+.gf-kanban-board {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	overflow-x: auto;
+	min-height: 100%;
+}
+
+.gf-kanban-carril {
+	background-color: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	min-width: 240px;
+	width: 240px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.gf-kanban-carril.gf-drop {
+	outline: 2px dashed var(--interactive-accent);
+	outline-offset: -2px;
+}
+
+.gf-kanban-header {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 10px;
+	cursor: grab;
+	border-bottom: 1px solid var(--background-modifier-border);
+	flex-wrap: wrap;
+}
+
+.gf-kanban-titulo {
+	flex: 1;
+	font-size: var(--font-ui-small);
+	font-weight: 700;
+	letter-spacing: 0.03em;
+}
+
+.gf-kanban-del {
+	visibility: hidden;
+	cursor: pointer;
+	color: var(--text-muted);
+	font-size: 15px;
+	line-height: 1;
+	padding: 0 2px;
+}
+
+.gf-kanban-header:hover .gf-kanban-del {
+	visibility: visible;
+}
+
+.gf-kanban-del:hover {
+	color: var(--text-error);
+}
+
+.gf-kanban-del.gf-disabled {
+	cursor: not-allowed;
+	opacity: 0.4;
+}
+
+.gf-kanban-del.gf-disabled:hover {
+	color: var(--text-muted);
+}
+
+.gf-kanban-cuerpo {
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	overflow-y: auto;
+	min-height: 48px;
+}
+
+.gf-kanban-vacio {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.gf-kanban-card {
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	padding: 8px 10px;
+	cursor: pointer;
+	box-shadow: var(--shadow-s);
+}
+
+.gf-kanban-card:hover {
+	border-color: var(--interactive-accent);
+}
+
+.gf-kanban-card-head {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.gf-kanban-card-nombre {
+	flex: 1;
+	font-size: var(--font-ui-small);
+	font-weight: 500;
+}
+
+.gf-kanban-card-func {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	font-style: italic;
+	margin-top: 2px;
+}
+
+.gf-kanban-card-fecha {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	margin-top: 2px;
+}
+
+.gf-kanban-expand {
+	cursor: pointer;
+	color: var(--text-muted);
+	font-size: 10px;
+	padding: 2px 4px;
+	border-radius: 4px;
+}
+
+.gf-kanban-expand:hover {
+	background-color: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* Sub-tablero de sub-tareas: mini-carriles apilados */
+.gf-kanban-subboard {
+	margin-top: 8px;
+	border-top: 1px solid var(--background-modifier-border);
+	padding-top: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	cursor: default;
+}
+
+.gf-kanban-minilane {
+	background-color: var(--background-secondary);
+	border: 1px dashed var(--background-modifier-border);
+	border-radius: 6px;
+	padding: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-height: 28px;
+}
+
+.gf-kanban-minilane.gf-drop {
+	outline: 2px dashed var(--interactive-accent);
+	outline-offset: -2px;
+}
+
+.gf-kanban-minilane-titulo {
+	font-size: 10px;
+	font-weight: 700;
+	color: var(--text-faint);
+	letter-spacing: 0.05em;
+}
+
+.gf-kanban-subcard {
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	padding: 5px 8px;
+	cursor: pointer;
+}
+
+.gf-kanban-subcard:hover {
+	border-color: var(--interactive-accent);
+}
+
+.gf-kanban-add {
+	min-width: 170px;
+	flex-shrink: 0;
+}
+
+.gf-kanban-add-btn {
+	width: 100%;
+}
+
+.gf-kanban-input {
+	width: 100%;
+}
+
+/* --- Selector de épica: filtro de completadas --- */
+.gf-chk {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	cursor: pointer;
+}
+
+.gf-opcion-completada {
+	color: var(--text-faint);
+	text-decoration: line-through;
+}
+
+/* --- Chips de etiquetas --- */
+.gf-chip {
+	font-size: var(--font-ui-smaller);
+	padding: 2px 8px;
+	border-radius: 999px;
+	border: 1px solid var(--background-modifier-border);
+	background-color: transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+	box-shadow: none;
+}
+
+.gf-chip:hover {
+	border-color: var(--interactive-accent);
+}
+
+.gf-chip-on {
+	background-color: var(--interactive-accent);
+	border-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.gf-chip-mini {
+	font-size: 9px;
+	padding: 0 5px;
+	cursor: inherit;
+	pointer-events: none;
+}
+
+/* --- Modal Asignar sprints --- */
+.gf-modal-sprints {
+	width: 560px;
+	max-width: 90vw;
+}
+
+.gf-sprints-lista {
+	max-height: 320px;
+	overflow-y: auto;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	padding: 4px;
+	margin-bottom: 8px;
+}
+
+.gf-sprint-fila {
+	padding: 4px 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.gf-sprint-fila:last-child {
+	border-bottom: none;
+}
+
+.gf-sprint-cabecera {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.gf-sprint-nombre {
+	font-size: var(--font-ui-small);
+}
+
+.gf-sprint-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin: 4px 0 2px 26px;
+}
+
+/* --- Etiquetas en configuración --- */
+.gf-etiquetas {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-bottom: 10px;
+}
+
+.gf-etiqueta {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	max-width: 360px;
+}
+
+.gf-etiqueta-nombre {
+	flex: 1;
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+}
+
+.gf-etiqueta-del {
+	cursor: pointer;
+	color: var(--text-muted);
+	font-size: 14px;
+	line-height: 1;
+}
+
+.gf-etiqueta-del:hover {
+	color: var(--text-error);
+}
+
+.gf-etiqueta-add {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	max-width: 360px;
+}
+
+.gf-etiqueta-add input[type="text"] {
+	flex: 1;
+}
+
+.gf-etiqueta-color {
+	width: 28px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+}
+
+.gf-estado-nombre {
+	cursor: default;
+}
+
+/* --- Vista Roadmap --- */
+.gf-roadmap {
+	padding: 12px;
+	overflow: auto;
+}
+
+.gf-roadmap-controles {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 12px;
+}
+
+.gf-roadmap-rango {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.gf-roadmap-lbl {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.gf-roadmap-num {
+	width: 60px;
+}
+
+.gf-roadmap-estados {
+	display: flex;
+	gap: 4px;
+	flex-wrap: wrap;
+}
+
+.gf-roadmap-recargar {
+	margin-left: auto;
+}
+
+.gf-roadmap-tabla-wrap {
+	overflow-x: auto;
+}
+
+.gf-roadmap-tabla {
+	border-collapse: collapse;
+	font-size: var(--font-ui-small);
+}
+
+.gf-roadmap-tabla th,
+.gf-roadmap-tabla td {
+	border: 1px solid var(--background-modifier-border);
+	padding: 4px 6px;
+	text-align: center;
+	min-width: 34px;
+}
+
+.gf-roadmap-th-epica,
+.gf-roadmap-epica {
+	text-align: left !important;
+	min-width: 160px !important;
+	white-space: nowrap;
+}
+
+.gf-roadmap-epica .internal-link {
+	cursor: pointer;
+}
+
+.gf-roadmap-fn {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.gf-roadmap-celda {
+	height: 34px;
+}
+
+.gf-roadmap-on {
+	background-color: rgba(80, 130, 255, 0.25);
+	cursor: pointer;
+}
+
+.gf-roadmap-on:hover {
+	background-color: rgba(80, 130, 255, 0.45);
+}
+
+.gf-roadmap-bloque {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	align-items: center;
+}
+
+/* --- v6: secciones del kanban, progreso, badges --- */
+.gf-kanban-seccion {
+	font-size: var(--font-ui-small);
+	font-weight: 700;
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin: 14px 0 8px 0;
+}
+
+.gf-kanban-progreso {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.gf-kanban-progreso-texto {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	min-width: 32px;
+}
+
+.gf-kanban-progreso-barra {
+	flex: 1;
+	height: 5px;
+	background-color: var(--background-modifier-border);
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.gf-kanban-progreso-relleno {
+	height: 100%;
+	background-color: var(--interactive-accent);
+	border-radius: 999px;
+}
+
+.gf-tipo-badge {
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--text-muted);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	padding: 1px 5px;
+	white-space: nowrap;
+}
+
+.gf-estado-badge {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 999px;
+	padding: 1px 8px;
+	margin-left: 8px;
+	white-space: nowrap;
+}
+
+.gf-incidencia-sub {
+	margin-left: 24px;
+}
+
+/* --- Mover épica --- */
+.gf-mover-fila {
+	display: flex;
+	padding: 2px 0;
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+}
+
+/* --- Tareas por colaborador --- */
+.gf-colab {
+	padding: 12px;
+	overflow: auto;
+}
+
+.gf-colab-buscador {
+	min-width: 280px;
+}
+
+.gf-colab-card {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	padding: 10px 12px;
+	margin-bottom: 10px;
+	max-width: 720px;
+}
+
+.gf-colab-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 6px;
+}
+
+.gf-colab-punto {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background-color: var(--interactive-accent);
+	flex-shrink: 0;
+}
+
+.gf-colab-nombre {
+	font-weight: 600;
+}
+
+.gf-colab-conteo {
+	margin-left: auto;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.gf-colab-lista {
+	margin: 8px 0 0 0;
+	padding-left: 4px;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: var(--font-ui-small);
+}
+
+.gf-colab-lista .internal-link {
+	cursor: pointer;
+	margin: 0 4px;
+}
+
+.gf-colab-chips {
+	margin: 0 0 6px 0;
+}
