@@ -4,3 +4,6 @@ node_modules/
 
 # main.js (el archivo compilado) NO se ignora a propósito:
 # los usuarios lo necesitan para instalar el plugin manualmente.
+
+# Configuración local de Claude Code
+.claude/settings.local.json

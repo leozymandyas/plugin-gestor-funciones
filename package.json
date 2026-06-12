@@ -1,6 +1,6 @@
 {
 	"name": "gestor-funciones",
-	"version": "1.0.0",
+	"version": "1.6.0",
 	"description": "Plugin de Obsidian para gestionar funcionalidades de producto: tareas, sub-tareas, apuntes y notas de reunión.",
 	"main": "main.js",
 	"scripts": {
