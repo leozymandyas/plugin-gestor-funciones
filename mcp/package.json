@@ -1,0 +1,22 @@
+{
+  "name": "gestor-funciones-mcp",
+  "version": "1.0.0",
+  "description": "Servidor MCP local para el plugin de Obsidian \"Gestión Producto\" (gestor-funciones). Permite a Claude leer y gestionar épicas, tareas, pendientes y notas dentro de uno o varios vaults, sin conexión a internet.",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "gestor-funciones-mcp": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "gray-matter": "^4.0.3",
+    "zod": "^3.23.8"
+  }
+}

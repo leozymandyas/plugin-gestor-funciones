@@ -1,0 +1,12 @@
+{
+  "vaults": [
+    {
+      "nombre": "trabajo",
+      "ruta": "/Users/leo/Documents/ObsidianVaults/Trabajo"
+    },
+    {
+      "nombre": "personal",
+      "ruta": "/Users/leo/Documents/ObsidianVaults/Personal"
+    }
+  ]
+}

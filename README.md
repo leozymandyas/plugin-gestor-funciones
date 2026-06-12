@@ -45,3 +45,7 @@ npm run build   # verificación de tipos + build de producción (main.js)
 ```
 
 Solo Obsidian Desktop (Mac/Windows/Linux). Interfaz en español.
+
+## Integración con Claude (MCP)
+
+En la carpeta [`mcp/`](mcp/) hay un servidor MCP local que permite gestionar tus épicas, tareas y notas hablándole en lenguaje natural a Claude (Claude Desktop, Claude Code, etc.), sin conexión a internet y respetando la separación entre distintos vaults. Consulta [`mcp/README.md`](mcp/README.md) para instalarlo y conectarlo.
