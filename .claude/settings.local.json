@@ -25,7 +25,10 @@
       "Bash(tail -5)",
       "Bash(cp manifest.json main.js styles.css __TRACKED_VAR__/.obsidian/plugins/gestor-funciones/)",
       "Bash(echo \"instalado v1.5.1\")",
-      "Bash(sed -i '' 's/\"version\": \"1.5.1\"/\"version\": \"1.6.0\"/' manifest.json)"
+      "Bash(sed -i '' 's/\"version\": \"1.5.1\"/\"version\": \"1.6.0\"/' manifest.json)",
+      "Bash(gh auth *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Incluir main.js y mejorar instrucciones de instalación *)"
     ]
   }
 }
