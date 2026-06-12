@@ -580,3 +580,66 @@ export async function cambiarEstado(vault, rutaRel, nuevoEstado) {
 	await fs.writeFile(abs, nuevo, "utf8");
 	return { ruta: rutaRel, estado: nuevoEstado };
 }
+
+// ---------------------------------------------------------------------------
+// Configuración del plugin (data.json): etiquetas de sprint
+// ---------------------------------------------------------------------------
+
+const COLOR_ETIQUETA_DEFECTO = "#5082ff"; // mismo valor que el plugin
+
+function rutaDataJson(vault) {
+	return path.join(vault.ruta, ".obsidian", "plugins", "gestor-funciones", "data.json");
+}
+
+/** Lee data.json del plugin. Devuelve {} si aún no existe. */
+async function leerData(vault) {
+	try {
+		return JSON.parse(await fs.readFile(rutaDataJson(vault), "utf8"));
+	} catch {
+		return {};
+	}
+}
+
+async function guardarData(vault, data) {
+	const ruta = rutaDataJson(vault);
+	await fs.mkdir(path.dirname(ruta), { recursive: true });
+	await fs.writeFile(ruta, JSON.stringify(data, null, 2), "utf8");
+}
+
+/** Lista las etiquetas de sprint configuradas en el plugin. */
+export async function listarEtiquetas(vault) {
+	const data = await leerData(vault);
+	return Array.isArray(data.etiquetas) ? data.etiquetas : [];
+}
+
+/**
+ * Agrega una etiqueta de sprint a la configuración del plugin.
+ * `color` es opcional (hex #rrggbb); usa el color por defecto si no se indica.
+ */
+export async function agregarEtiqueta(vault, nombre, color) {
+	const limpio = String(nombre).trim();
+	if (!limpio) throw new Error("El nombre de la etiqueta no puede estar vacío.");
+	const data = await leerData(vault);
+	if (!Array.isArray(data.etiquetas)) data.etiquetas = [];
+	if (data.etiquetas.some((e) => String(e.nombre).toLowerCase() === limpio.toLowerCase())) {
+		throw new Error(`Ya existe una etiqueta de sprint llamada "${limpio}".`);
+	}
+	const etiqueta = { nombre: limpio, color: color || COLOR_ETIQUETA_DEFECTO };
+	data.etiquetas.push(etiqueta);
+	await guardarData(vault, data);
+	return etiqueta;
+}
+
+/** Elimina una etiqueta de sprint por nombre (sin distinguir mayúsculas). */
+export async function eliminarEtiqueta(vault, nombre) {
+	const data = await leerData(vault);
+	const antes = Array.isArray(data.etiquetas) ? data.etiquetas.length : 0;
+	data.etiquetas = (data.etiquetas || []).filter(
+		(e) => String(e.nombre).toLowerCase() !== String(nombre).toLowerCase()
+	);
+	if (data.etiquetas.length === antes) {
+		throw new Error(`No encontré una etiqueta de sprint llamada "${nombre}".`);
+	}
+	await guardarData(vault, data);
+	return { eliminada: nombre };
+}

@@ -1,57 +1,107 @@
-# Gestor Funciones — Plugin para Obsidian
+# Gestión Producto
 
-Plugin para Product Owners que concentra toda la información de una funcionalidad de software en un solo lugar: tareas, sub-tareas, apuntes y notas de reunión, todo como archivos `.md` dentro del vault.
+Plugin de Obsidian para Product Owners y equipos que gestionan el desarrollo de un
+producto. Concentra toda la información de una **épica** —funcionalidades, tareas,
+pendientes, apuntes, notas de reunión, insumos, historias, sprints y roadmap— como
+notas Markdown dentro de tu vault.
+
+Todo se guarda en archivos `.md` normales: tu información queda en tu vault, es tuya,
+portable y legible sin el plugin.
+
+> Solo para Obsidian Desktop (Windows, macOS, Linux). Interfaz en español.
+
+---
+
+## Cómo organiza la información
+
+El plugin trabaja con una jerarquía pensada para gestión de producto:
+
+- **Épica** — el contenedor principal de un esfuerzo de producto. Se guardan en las
+  carpetas `Épicas activas/` y `Épicas inactivas/` de tu vault.
+- **Funcionalidad** — un módulo o parte de trabajo dentro de una épica.
+- **Tarea** y **sub-tarea** — el trabajo concreto, con estado (por hacer, en progreso, etc.).
+- **Pendiente** y **sub-pendiente** — cosas por resolver, con su criterio de completado.
+- **Apunte** — notas sueltas relacionadas con la épica.
+- **Nota de reunión** — con plantilla de asistentes, temas, acuerdos y próximos pasos.
+- **Insumo** e **historia** — entradas de producto e historias de usuario.
+- **Sprint** — asignación de trabajo a sprints, con etiquetas configurables.
+- **Colaborador** — personas asignables a tareas y pendientes.
+
+Cada elemento es una nota Markdown con su frontmatter, organizada en carpetas
+automáticamente y con nombres "slugificados" (`Diseñar pantalla de login` →
+`disenar-pantalla-de-login.md`).
 
 ## Características
 
-- **Botón flotante (FAB)** con ícono de chip en la esquina inferior derecha del editor, con menú para crear funcionalidades, tareas, sub-tareas, apuntes y notas de reunión.
-- **Comandos en la paleta** (`Cmd/Ctrl + P`): los cinco mismos accesos como `Gestor Funciones: Crear …`.
-- **Estructura de carpetas automática** por funcionalidad: `tareas/`, `apuntes/`, `reuniones/`, con nombres slugificados (`Diseñar pantalla de login` → `disenar-pantalla-de-login.md`).
-- **Vista unificada**: la nota principal de cada funcionalidad (frontmatter `tipo: funcionalidad`) se renderiza en modo lectura como dashboard, con tareas como checkboxes (que actualizan el `estado` del frontmatter de la tarea al hacer clic), sub-tareas anidadas, y apuntes/reuniones ordenados por fecha descendente.
-- **Conversión automática de tareas en carpetas** al crear su primera sub-tarea; la nota de la tarea se mueve adentro y Obsidian actualiza los wikilinks.
+- **Panel de acciones** lateral (ícono en la barra izquierda de Obsidian) con botones
+  para crear cada tipo de elemento, sin memorizar comandos.
+- **Comandos** en la paleta (`Cmd/Ctrl + P`): crear épica, funcionalidad, tarea,
+  sub-tarea, pendiente, apunte, nota de reunión, insumo, historia, asignar sprint,
+  asignar colaborador, cambiar estado, mover épica, y más.
+- **Dashboard de épica**: la nota principal de cada épica se renderiza en modo lectura
+  como un tablero, con sus tareas como casillas que actualizan su estado al hacer clic,
+  sub-tareas anidadas y notas ordenadas por fecha.
+- **Tablero Kanban** (gestión de incidencias): arrastra tareas y pendientes entre
+  columnas para cambiar su estado.
+- **Roadmap**: vista general del avance de las épicas por estado.
+- **Sprints y etiquetas** configurables para clasificar el trabajo.
+- **Estados configurables** para las épicas (Backlog, Por hacer, En progreso, Hecho… y
+  los que tú agregues).
 
-## Configuración
+## Instalación
 
-Settings > Community plugins > Gestor Funciones > Options:
+### Desde los Community Plugins de Obsidian
 
-- **Carpeta de administración**: ruta relativa dentro del vault donde se guardan las funcionalidades (ej. `Admin en Obsidian`). Si no existe, se crea automáticamente.
+> Disponible cuando el plugin sea aprobado en el catálogo oficial.
 
-Si intentas crear algo sin haber configurado la carpeta, el plugin muestra un aviso con un botón que abre la configuración.
+1. Abre **Settings → Community plugins → Browse**.
+2. Busca **Gestión Producto**.
+3. **Install** y luego **Enable**.
 
-## Instalación manual (descargando desde GitHub)
+### Instalación manual
 
-> Mientras el plugin no esté disponible en los _Community plugins_ oficiales de Obsidian, esta es la forma de instalarlo.
-
-1. Descarga estos **tres archivos** desde este repositorio (botón derecho → "Guardar enlace como…", o ábrelos y usa el botón de descarga **Download raw file**):
-   - `manifest.json`
-   - `main.js`
-   - `styles.css`
-2. En tu vault de Obsidian, crea (si no existe) la carpeta:
+1. Descarga `manifest.json`, `main.js` y `styles.css` desde la
+   [última Release del repositorio](../../releases/latest).
+2. Crea la carpeta `gestor-funciones` dentro de la carpeta de plugins de tu vault:
    ```
    <tu-vault>/.obsidian/plugins/gestor-funciones/
    ```
-   > La carpeta `.obsidian` está oculta. En Mac pulsa `Cmd + Shift + .` en Finder para ver carpetas ocultas.
-3. Copia los tres archivos descargados dentro de esa carpeta.
-4. Abre Obsidian, ve a **Settings → Community plugins**, activa el modo (si te lo pide) y enciende **Gestión Producto**.
+   > La carpeta `.obsidian` está oculta. En macOS pulsa `Cmd + Shift + .` en Finder para verla.
+3. Copia los tres archivos descargados ahí dentro.
+4. En Obsidian, ve a **Settings → Community plugins**, activa los plugins de la comunidad
+   si te lo pide y enciende **Gestión Producto**.
 
-> 💡 Si actualizo el plugin, solo vuelve a descargar `main.js` (y `manifest.json` si cambió la versión) y reemplaza los archivos. Luego desactiva y reactiva el plugin en Obsidian.
+## Primeros pasos
+
+1. Abre el **panel de acciones** desde el ícono del plugin en la barra lateral izquierda.
+2. La primera vez, usa **"Crear carpetas de gestión"** para generar las carpetas de épicas.
+3. Crea tu primera **épica**. Se abrirá su nota principal (el dashboard).
+4. Desde ahí, agrega **funcionalidades, tareas, pendientes, apuntes**, etc.
+5. Abre el **Kanban** o el **Roadmap** desde el panel para ver el avance general.
+
+## Configuración
+
+En **Settings → Gestión Producto** puedes personalizar:
+
+- **Estados de épica**: los estados disponibles (los predeterminados no se pueden borrar;
+  puedes añadir los tuyos).
+- **Etiquetas de sprint**: etiquetas con color para clasificar el trabajo en los sprints.
+
+## Integración con IA (opcional)
+
+El repositorio incluye, en la carpeta [`mcp/`](mcp/), un servidor **MCP** opcional que
+permite gestionar tus épicas, tareas y notas hablándole en lenguaje natural a un
+asistente de IA (como Claude). Funciona en local y es completamente opcional: el plugin
+no lo necesita para funcionar. Si te interesa, consulta [`mcp/README.md`](mcp/README.md).
 
 ## Desarrollo
 
 ```bash
 npm install
 npm run dev     # compila en modo watch
-npm run build   # verificación de tipos + build de producción (main.js)
+npm run build   # verifica tipos y genera main.js de producción
 ```
 
-Solo Obsidian Desktop (Mac/Windows/Linux). Interfaz en español.
+## Licencia
 
-## Publicar en Obsidian
-
-Para llevar el plugin al catálogo oficial de Community Plugins, sigue
-[`PUBLICAR-EN-OBSIDIAN.md`](PUBLICAR-EN-OBSIDIAN.md). El historial de versiones está
-en [`CHANGELOG.md`](CHANGELOG.md).
-
-## Integración con Claude (MCP)
-
-En la carpeta [`mcp/`](mcp/) hay un servidor MCP local que permite gestionar tus épicas, tareas y notas hablándole en lenguaje natural a Claude (Claude Desktop, Claude Code, etc.), sin conexión a internet y respetando la separación entre distintos vaults. Consulta [`mcp/README.md`](mcp/README.md) para instalarlo y conectarlo.
+[MIT](LICENSE).

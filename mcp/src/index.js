@@ -24,6 +24,9 @@ import {
 	crearInsumo,
 	crearHistoria,
 	cambiarEstado,
+	listarEtiquetas,
+	agregarEtiqueta,
+	eliminarEtiqueta,
 } from "./vault.js";
 
 const server = new McpServer({
@@ -40,6 +43,21 @@ function fail(error) {
 	return {
 		isError: true,
 		content: [{ type: "text", text: `Error: ${error?.message || String(error)}` }],
+	};
+}
+
+const AVISO_REINICIO =
+	"⚠️ IMPORTANTE: Los cambios en las etiquetas de sprint modifican la configuración interna del plugin. " +
+	"El usuario debe reiniciar Obsidian (cerrar y volver a abrir, o usar Ctrl/Cmd+R para recargar) " +
+	"para que los cambios se reflejen en la interfaz.";
+
+/** Igual que ok() pero añade un aviso de reinicio al final. */
+function okConAvisoReinicio(data) {
+	return {
+		content: [
+			{ type: "text", text: JSON.stringify(data, null, 2) },
+			{ type: "text", text: AVISO_REINICIO },
+		],
 	};
 }
 
@@ -302,6 +320,59 @@ server.tool(
 		try {
 			const v = await resolverVault(vault);
 			return ok(await cambiarEstado(v, ruta, estado));
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+// ---------------------------------------------------------------------------
+// Configuración del plugin: etiquetas de sprint
+// ---------------------------------------------------------------------------
+
+server.tool(
+	"listar_etiquetas",
+	"Lista las etiquetas de sprint configuradas en el plugin (nombre y color) para un vault.",
+	{ vault: vaultArg },
+	async ({ vault }) => {
+		try {
+			const v = await resolverVault(vault);
+			return ok(await listarEtiquetas(v));
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+server.tool(
+	"agregar_etiqueta",
+	"Agrega una etiqueta de sprint a la configuración del plugin. El color es opcional (hex #rrggbb). IMPORTANTE: Obsidian debe recargarse (cerrar y abrir, o recargar el vault) para que la etiqueta nueva aparezca en la interfaz.",
+	{
+		vault: vaultArg,
+		nombre: z.string().describe("Nombre de la etiqueta de sprint."),
+		color: z
+			.string()
+			.optional()
+			.describe("Color en formato hex #rrggbb (opcional)."),
+	},
+	async ({ vault, nombre, color }) => {
+		try {
+			const v = await resolverVault(vault);
+			return okConAvisoReinicio(await agregarEtiqueta(v, nombre, color));
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+server.tool(
+	"eliminar_etiqueta",
+	"Elimina una etiqueta de sprint de la configuración del plugin por su nombre. Obsidian debe recargarse para reflejar el cambio.",
+	{ vault: vaultArg, nombre: z.string().describe("Nombre de la etiqueta a eliminar.") },
+	async ({ vault, nombre }) => {
+		try {
+			const v = await resolverVault(vault);
+			return okConAvisoReinicio(await eliminarEtiqueta(v, nombre));
 		} catch (e) {
 			return fail(e);
 		}
