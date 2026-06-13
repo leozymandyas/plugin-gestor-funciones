@@ -35,13 +35,23 @@ automáticamente y con nombres "slugificados" (`Diseñar pantalla de login` →
 
 - **Panel de acciones** lateral (ícono en la barra izquierda de Obsidian) con botones
   para crear cada tipo de elemento, sin memorizar comandos.
+  
+  ![Panel de acciones](https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/panel-acciones.png)
+  
 - **Comandos** en la paleta (`Cmd/Ctrl + P`): crear épica, funcionalidad, tarea,
   pendiente, apunte, nota de reunión, insumo, historia, asignar sprint,
   asignar colaborador, cambiar estado, mover épica, y más.
-- **Roadmap**: vista general del avance de las épicas por estado.
+  
+   ![Comandos](https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/comandos.png)
+  
 - **Sprints y etiquetas** configurables para clasificar el trabajo.
+  
+-  ![Sprint y etiquetas](https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/etiquetas-sprint.png)
+  
 - **Estados configurables** para las épicas (Backlog, Por hacer, En progreso, Hecho… y
   los que tú agregues).
+  
+  ![Estados épica](https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/estados-epica.png)
 
 ## Instalación
 
