@@ -900,20 +900,20 @@ export class GestionColaboradoresModal extends GestorModal {
 				cls: "gf-etiqueta-color",
 				value: colab.color,
 			});
-			color.addEventListener("change", async () => {
+			color.addEventListener("change", () => void (async () => {
 				colab.color = color.value;
 				await this.plugin.saveSettings();
-			});
+			})());
 			const nombre = fila.createEl("span", { text: colab.nombre, cls: "gf-etiqueta-nombre" });
 			nombre.setAttr("title", "Clic para editar");
 			nombre.addEventListener("click", () => this.editarNombre(cont, fila, nombre, indice));
 			const del = fila.createEl("span", { text: "×", cls: "gf-etiqueta-del" });
 			del.setAttr("title", "Eliminar colaborador");
-			del.addEventListener("click", async () => {
+			del.addEventListener("click", () => void (async () => {
 				colaboradores.splice(indice, 1);
 				await this.plugin.saveSettings();
 				this.renderLista(cont);
-			});
+			})());
 		});
 
 		const addRow = cont.createDiv({ cls: "gf-etiqueta-add" });

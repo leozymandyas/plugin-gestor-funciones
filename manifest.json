@@ -1,7 +1,7 @@
 {
 	"id": "gestor-funciones",
 	"name": "Gestion Producto",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"minAppVersion": "1.7.2",
 	"description": "Concentra toda la información de una épica de producto en un solo lugar: tareas, apuntes, reuniones, pendientes, insumos, historias, sprints y roadmap como notas Markdown dentro del vault.",
 	"author": "Leonardo Ruano",

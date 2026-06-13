@@ -1,6 +1,6 @@
 {
 	"name": "gestor-funciones",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"description": "Plugin de Obsidian para gestionar épicas de producto: funcionalidades, tareas, pendientes, apuntes y notas de reunión.",
 	"main": "main.js",
 	"scripts": {
