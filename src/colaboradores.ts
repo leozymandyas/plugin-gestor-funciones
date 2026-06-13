@@ -77,11 +77,11 @@ export class TareasColaboradorView extends ItemView {
 					cls: "gf-chip" + (activo ? " gf-chip-on" : ""),
 				});
 				if (activo) {
-					chip.style.backgroundColor = colab.color;
-					chip.style.borderColor = colab.color;
+					chip.setCssStyles({ backgroundColor: colab.color });
+					chip.setCssStyles({ borderColor: colab.color });
 				} else {
-					chip.style.borderColor = colab.color;
-					chip.style.color = colab.color;
+					chip.setCssStyles({ borderColor: colab.color });
+					chip.setCssStyles({ color: colab.color });
 				}
 				chip.addEventListener("click", () => {
 					if (activo) this.seleccionFiltro.delete(colab.nombre);
@@ -140,7 +140,7 @@ export class TareasColaboradorView extends ItemView {
 				const color = this.plugin.settings.colaboradores.find(
 					(c) => c.nombre === nombre
 				)?.color;
-				if (color) punto.style.backgroundColor = color;
+				if (color) punto.setCssStyles({ backgroundColor: color });
 				head.createEl("span", { text: nombre, cls: "gf-colab-nombre" });
 
 				// Progreso: hechas vs por hacer / en progreso.
@@ -156,7 +156,7 @@ export class TareasColaboradorView extends ItemView {
 				if (total > 0) {
 					const barraProg = tarjeta.createDiv({ cls: "gf-kanban-progreso-barra" });
 					const relleno = barraProg.createDiv({ cls: "gf-kanban-progreso-relleno" });
-					relleno.style.width = `${pct}%`;
+					relleno.setCssStyles({ width: `${pct}%` });
 				}
 
 				if (incidencias.length > 0) {

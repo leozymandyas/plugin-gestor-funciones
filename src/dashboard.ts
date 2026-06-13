@@ -144,7 +144,7 @@ function renderTareas(
 	}
 	const ul = cont.createEl("ul", { cls: "gf-lista-tareas contains-task-list" });
 	for (const t of tareas) {
-		const li = itemTarea(plugin, ul, t.file, t.nombre, sourcePath);
+		itemTarea(plugin, ul, t.file, t.nombre, sourcePath);
 	}
 }
 

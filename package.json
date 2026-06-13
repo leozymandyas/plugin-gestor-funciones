@@ -1,7 +1,7 @@
 {
 	"name": "gestor-funciones",
 	"version": "1.6.1",
-	"description": "Plugin de Obsidian para gestionar funcionalidades de producto: tareas, sub-tareas, apuntes y notas de reunión.",
+	"description": "Plugin de Obsidian para gestionar épicas de producto: funcionalidades, tareas, pendientes, apuntes y notas de reunión.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -12,7 +12,6 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^20.11.0",
-		"builtin-modules": "^3.3.0",
 		"esbuild": "^0.20.2",
 		"obsidian": "latest",
 		"tslib": "^2.6.2",

@@ -920,7 +920,7 @@ function renderTareas(plugin, cont, funcFolder, sourcePath) {
   }
   const ul = cont.createEl("ul", { cls: "gf-lista-tareas contains-task-list" });
   for (const t of tareas) {
-    const li = itemTarea(plugin, ul, t.file, t.nombre, sourcePath);
+    itemTarea(plugin, ul, t.file, t.nombre, sourcePath);
   }
 }
 function renderPendientes(plugin, cont, funcFolder, sourcePath) {
@@ -1809,11 +1809,11 @@ var GestorModal = class extends import_obsidian6.Modal {
           cls: "gf-chip" + (activo ? " gf-chip-on" : "")
         });
         if (activo) {
-          chip.style.backgroundColor = colab.color;
-          chip.style.borderColor = colab.color;
+          chip.setCssStyles({ backgroundColor: colab.color });
+          chip.setCssStyles({ borderColor: colab.color });
         } else {
-          chip.style.borderColor = colab.color;
-          chip.style.color = colab.color;
+          chip.setCssStyles({ borderColor: colab.color });
+          chip.setCssStyles({ color: colab.color });
         }
         chip.addEventListener("click", (e) => {
           e.preventDefault();
@@ -2234,11 +2234,11 @@ var AsignarSprintModal = class extends GestorModal {
             cls: "gf-chip" + (activa ? " gf-chip-on" : "")
           });
           if (activa) {
-            chip.style.backgroundColor = et.color;
-            chip.style.borderColor = et.color;
+            chip.setCssStyles({ backgroundColor: et.color });
+            chip.setCssStyles({ borderColor: et.color });
           } else {
-            chip.style.borderColor = et.color;
-            chip.style.color = et.color;
+            chip.setCssStyles({ borderColor: et.color });
+            chip.setCssStyles({ color: et.color });
           }
           chip.addEventListener("click", (e) => {
             e.preventDefault();
@@ -2581,11 +2581,11 @@ var AsignarColaboradorModal = class extends GestorModal {
           cls: "gf-chip" + (activo ? " gf-chip-on" : "")
         });
         if (activo) {
-          chip.style.backgroundColor = colab.color;
-          chip.style.borderColor = colab.color;
+          chip.setCssStyles({ backgroundColor: colab.color });
+          chip.setCssStyles({ borderColor: colab.color });
         } else {
-          chip.style.borderColor = colab.color;
-          chip.style.color = colab.color;
+          chip.setCssStyles({ borderColor: colab.color });
+          chip.setCssStyles({ color: colab.color });
         }
         chip.addEventListener("click", (e) => {
           e.preventDefault();
@@ -3073,15 +3073,17 @@ var RoadmapView = class extends import_obsidian7.ItemView {
         );
         const colorPrimera = this.colorDe(etiquetas[0]);
         if (colorPrimera)
-          td.style.backgroundColor = conAlpha(colorPrimera, 0.25);
+          td.setCssStyles({ backgroundColor: conAlpha(colorPrimera, 0.25) });
         const bloque = td.createDiv({ cls: "gf-roadmap-bloque" });
         for (const et of etiquetas.slice(0, 2)) {
           const chip = bloque.createEl("span", { cls: "gf-chip gf-chip-mini", text: et });
           const color = this.colorDe(et);
           if (color) {
-            chip.style.backgroundColor = color;
-            chip.style.borderColor = color;
-            chip.style.color = "#ffffff";
+            chip.setCssStyles({
+              backgroundColor: color,
+              borderColor: color,
+              color: "#ffffff"
+            });
           }
         }
         if (etiquetas.length > 2) {
@@ -3165,11 +3167,11 @@ var TareasColaboradorView = class extends import_obsidian8.ItemView {
           cls: "gf-chip" + (activo ? " gf-chip-on" : "")
         });
         if (activo) {
-          chip.style.backgroundColor = colab.color;
-          chip.style.borderColor = colab.color;
+          chip.setCssStyles({ backgroundColor: colab.color });
+          chip.setCssStyles({ borderColor: colab.color });
         } else {
-          chip.style.borderColor = colab.color;
-          chip.style.color = colab.color;
+          chip.setCssStyles({ borderColor: colab.color });
+          chip.setCssStyles({ color: colab.color });
         }
         chip.addEventListener("click", () => {
           if (activo)
@@ -3224,7 +3226,7 @@ var TareasColaboradorView = class extends import_obsidian8.ItemView {
           (c) => c.nombre === nombre
         )) == null ? void 0 : _b.color;
         if (color)
-          punto.style.backgroundColor = color;
+          punto.setCssStyles({ backgroundColor: color });
         head.createEl("span", { text: nombre, cls: "gf-colab-nombre" });
         const hechas = incidencias.filter(
           (i) => this.estadoDe(i.file) === "completado"
@@ -3238,7 +3240,7 @@ var TareasColaboradorView = class extends import_obsidian8.ItemView {
         if (total > 0) {
           const barraProg = tarjeta.createDiv({ cls: "gf-kanban-progreso-barra" });
           const relleno = barraProg.createDiv({ cls: "gf-kanban-progreso-relleno" });
-          relleno.style.width = `${pct}%`;
+          relleno.setCssStyles({ width: `${pct}%` });
         }
         if (incidencias.length > 0) {
           const ul = tarjeta.createEl("ul", { cls: "gf-colab-lista" });

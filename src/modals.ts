@@ -192,11 +192,11 @@ abstract class GestorModal extends Modal {
 					cls: "gf-chip" + (activo ? " gf-chip-on" : ""),
 				});
 				if (activo) {
-					chip.style.backgroundColor = colab.color;
-					chip.style.borderColor = colab.color;
+					chip.setCssStyles({ backgroundColor: colab.color });
+					chip.setCssStyles({ borderColor: colab.color });
 				} else {
-					chip.style.borderColor = colab.color;
-					chip.style.color = colab.color;
+					chip.setCssStyles({ borderColor: colab.color });
+					chip.setCssStyles({ color: colab.color });
 				}
 				chip.addEventListener("click", (e) => {
 					e.preventDefault();
@@ -680,11 +680,11 @@ export class AsignarSprintModal extends GestorModal {
 					});
 					// El color configurado de la etiqueta tiñe el chip.
 					if (activa) {
-						chip.style.backgroundColor = et.color;
-						chip.style.borderColor = et.color;
+						chip.setCssStyles({ backgroundColor: et.color });
+						chip.setCssStyles({ borderColor: et.color });
 					} else {
-						chip.style.borderColor = et.color;
-						chip.style.color = et.color;
+						chip.setCssStyles({ borderColor: et.color });
+						chip.setCssStyles({ color: et.color });
 					}
 					chip.addEventListener("click", (e) => {
 						e.preventDefault();
@@ -1061,11 +1061,11 @@ export class AsignarColaboradorModal extends GestorModal {
 					cls: "gf-chip" + (activo ? " gf-chip-on" : ""),
 				});
 				if (activo) {
-					chip.style.backgroundColor = colab.color;
-					chip.style.borderColor = colab.color;
+					chip.setCssStyles({ backgroundColor: colab.color });
+					chip.setCssStyles({ borderColor: colab.color });
 				} else {
-					chip.style.borderColor = colab.color;
-					chip.style.color = colab.color;
+					chip.setCssStyles({ borderColor: colab.color });
+					chip.setCssStyles({ color: colab.color });
 				}
 				chip.addEventListener("click", (e) => {
 					e.preventDefault();

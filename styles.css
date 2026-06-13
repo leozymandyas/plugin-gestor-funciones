@@ -548,8 +548,8 @@
 
 .gf-roadmap-th-epica,
 .gf-roadmap-epica {
-	text-align: left !important;
-	min-width: 160px !important;
+	text-align: left;
+	min-width: 160px;
 	white-space: nowrap;
 }
 

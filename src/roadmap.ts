@@ -211,15 +211,17 @@ export class RoadmapView extends ItemView {
 				);
 				// El bloque toma el color configurado de la primera etiqueta.
 				const colorPrimera = this.colorDe(etiquetas[0]);
-				if (colorPrimera) td.style.backgroundColor = conAlpha(colorPrimera, 0.25);
+				if (colorPrimera) td.setCssStyles({ backgroundColor: conAlpha(colorPrimera, 0.25) });
 				const bloque = td.createDiv({ cls: "gf-roadmap-bloque" });
 				for (const et of etiquetas.slice(0, 2)) {
 					const chip = bloque.createEl("span", { cls: "gf-chip gf-chip-mini", text: et });
 					const color = this.colorDe(et);
 					if (color) {
-						chip.style.backgroundColor = color;
-						chip.style.borderColor = color;
-						chip.style.color = "#ffffff";
+						chip.setCssStyles({
+							backgroundColor: color,
+							borderColor: color,
+							color: "#ffffff",
+						});
 					}
 				}
 				if (etiquetas.length > 2) {
