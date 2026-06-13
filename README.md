@@ -36,22 +36,22 @@ automáticamente y con nombres "slugificados" (`Diseñar pantalla de login` →
 - **Panel de acciones** lateral (ícono en la barra izquierda de Obsidian) con botones
   para crear cada tipo de elemento, sin memorizar comandos.
   
-  ![Panel de acciones](https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/panel-acciones.png)
+  <img src="https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/panel-acciones.png" alt="Panel de acciones" width="480">
   
 - **Comandos** en la paleta (`Cmd/Ctrl + P`): crear épica, funcionalidad, tarea,
   pendiente, apunte, nota de reunión, insumo, historia, asignar sprint,
   asignar colaborador, cambiar estado, mover épica, y más.
   
-   ![Comandos](https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/comandos.png)
+  <img src="https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/comandos.png" alt="Comandos" width="480">
   
 - **Sprints y etiquetas** configurables para clasificar el trabajo.
   
--  ![Sprint y etiquetas](https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/etiquetas-sprint.png)
+  <img src="https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/etiquetas-sprint.png" alt="Sprint y etiquetas" width="480">
   
 - **Estados configurables** para las épicas (Backlog, Por hacer, En progreso, Hecho… y
   los que tú agregues).
   
-  ![Estados épica](https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/estados-epica.png)
+  <img src="https://raw.githubusercontent.com/leozymandyas/plugin-gestor-funciones/main/assets/estados-epica.png" alt="Estados épica" width="480">
 
 ## Instalación
 
