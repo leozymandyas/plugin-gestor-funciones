@@ -38,11 +38,6 @@ automáticamente y con nombres "slugificados" (`Diseñar pantalla de login` →
 - **Comandos** en la paleta (`Cmd/Ctrl + P`): crear épica, funcionalidad, tarea,
   pendiente, apunte, nota de reunión, insumo, historia, asignar sprint,
   asignar colaborador, cambiar estado, mover épica, y más.
-- **Dashboard de épica**: la nota principal de cada épica se renderiza en modo lectura
-  como un tablero, con sus tareas como casillas que actualizan su estado al hacer clic
-  y notas ordenadas por fecha.
-- **Tablero Kanban** (gestión de incidencias): arrastra tareas y pendientes entre
-  columnas para cambiar su estado.
 - **Roadmap**: vista general del avance de las épicas por estado.
 - **Sprints y etiquetas** configurables para clasificar el trabajo.
 - **Estados configurables** para las épicas (Backlog, Por hacer, En progreso, Hecho… y
