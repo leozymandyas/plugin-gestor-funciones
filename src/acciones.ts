@@ -45,18 +45,12 @@ const SECCIONES: Array<{ titulo: string; acciones: Accion[] }> = [
 	{
 		titulo: "Incidencias",
 		acciones: [
+			{ icono: "check-square", texto: "Crear tarea", accion: (p) => p.abrirModal("tarea") },
+			{ icono: "hourglass", texto: "Crear pendiente", accion: (p) => p.abrirModal("pendiente") },
 			{
 				icono: "kanban-square",
 				texto: "Gestión de incidencias",
 				accion: (p) => void p.abrirKanban(),
-			},
-			{ icono: "check-square", texto: "Crear tarea", accion: (p) => p.abrirModal("tarea") },
-			{ icono: "list-checks", texto: "Crear sub-tarea", accion: (p) => p.abrirModal("subtarea") },
-			{ icono: "hourglass", texto: "Crear pendiente", accion: (p) => p.abrirModal("pendiente") },
-			{
-				icono: "list-todo",
-				texto: "Crear sub-pendiente",
-				accion: (p) => p.abrirModal("subpendiente"),
 			},
 		],
 	},

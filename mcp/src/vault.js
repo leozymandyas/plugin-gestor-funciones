@@ -214,13 +214,13 @@ export async function resolverEpica(vault, ref) {
 	return encontrada;
 }
 
-/** Tareas de una épica (cada tarea es una carpeta con su .md y subtareas/). */
+/** Tareas de una épica (cada tarea es un archivo .md). */
 async function listarTareas(epica) {
 	const dir = path.join(epica.folder, "tareas");
 	const out = [];
-	for (const slug of await subcarpetas(dir)) {
-		const main = path.join(dir, slug, `${slug}.md`);
-		if (!(await esArchivo(main))) continue;
+	for (const archivo of await archivosMd(dir)) {
+		const main = path.join(dir, archivo);
+		let slug = archivo.replace(/\.md$/, "");
 		let nombre = slug;
 		let estado;
 		try {
@@ -228,66 +228,29 @@ async function listarTareas(epica) {
 			if (data.nombre) nombre = String(data.nombre);
 			if (data.estado) estado = String(data.estado);
 		} catch {}
-		const subtareas = [];
-		for (const sub of await archivosMd(path.join(dir, slug, "subtareas"))) {
-			const subAbs = path.join(dir, slug, "subtareas", sub);
-			let subNombre = sub.replace(/\.md$/, "");
-			let subEstado;
-			try {
-				const { data } = await leerMd(subAbs);
-				if (data.nombre) subNombre = String(data.nombre);
-				if (data.estado) subEstado = String(data.estado);
-			} catch {}
-			subtareas.push({ slug: sub.replace(/\.md$/, ""), nombre: subNombre, estado: subEstado, file: subAbs });
-		}
-		out.push({ slug, nombre, estado, folder: path.join(dir, slug), file: main, subtareas });
+		out.push({ slug, nombre, estado, file: main });
 	}
 	return out.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
 
-/** Pendientes de una épica (carpeta por pendiente o archivo plano antiguo). */
+/** Pendientes de una épica. */
 async function listarPendientesDe(epica) {
 	const dir = path.join(epica.folder, "pendientes");
 	const out = [];
 	if (!(await esDir(dir))) return out;
-	const entradas = await fs.readdir(dir, { withFileTypes: true });
-	for (const ent of entradas) {
-		if (ent.isFile() && ent.name.endsWith(".md")) {
-			const abs = path.join(dir, ent.name);
-			const slug = ent.name.replace(/\.md$/, "");
-			out.push(await leerPendiente(abs, slug, null));
-		} else if (ent.isDirectory()) {
-			const main = path.join(dir, ent.name, `${ent.name}.md`);
-			if (!(await esArchivo(main))) continue;
-			out.push(await leerPendiente(main, ent.name, path.join(dir, ent.name)));
-		}
+	for (const archivo of await archivosMd(dir)) {
+		const abs = path.join(dir, archivo);
+		let slug = archivo.replace(/\.md$/, "");
+		let nombre = slug;
+		let estado;
+		try {
+			const { data } = await leerMd(abs);
+			if (data.nombre) nombre = String(data.nombre);
+			if (data.estado) estado = String(data.estado);
+		} catch {}
+		out.push({ slug, nombre, estado, file: abs });
 	}
 	return out.sort((a, b) => a.slug.localeCompare(b.slug, "es"));
-}
-
-async function leerPendiente(fileAbs, slug, folderAbs) {
-	let nombre = slug;
-	let estado;
-	try {
-		const { data } = await leerMd(fileAbs);
-		if (data.nombre) nombre = String(data.nombre);
-		if (data.estado) estado = String(data.estado);
-	} catch {}
-	const subpendientes = [];
-	if (folderAbs) {
-		for (const sub of await archivosMd(path.join(folderAbs, "subpendientes"))) {
-			const subAbs = path.join(folderAbs, "subpendientes", sub);
-			let subNombre = sub.replace(/\.md$/, "");
-			let subEstado;
-			try {
-				const { data } = await leerMd(subAbs);
-				if (data.nombre) subNombre = String(data.nombre);
-				if (data.estado) subEstado = String(data.estado);
-			} catch {}
-			subpendientes.push({ slug: sub.replace(/\.md$/, ""), nombre: subNombre, estado: subEstado, file: subAbs });
-		}
-	}
-	return { slug, nombre, estado, folder: folderAbs, file: fileAbs, subpendientes };
 }
 
 /** Lista archivos .md sueltos de una subcarpeta (apuntes, reuniones, insumos, historias). */
@@ -335,8 +298,6 @@ export async function detalleEpica(vault, ref) {
 			...x,
 			file: rutaRelativa(vault, x.file),
 			folder: x.folder ? rutaRelativa(vault, x.folder) : undefined,
-			subtareas: x.subtareas?.map((s) => ({ ...s, file: rutaRelativa(vault, s.file) })),
-			subpendientes: x.subpendientes?.map((s) => ({ ...s, file: rutaRelativa(vault, s.file) })),
 		}));
 
 	return {
@@ -452,7 +413,7 @@ export async function crearEpica(vault, nombre) {
 	const slug = await slugDisponible(root.abs, slugify(nombre));
 	const carpeta = path.join(root.abs, slug);
 	await asegurarCarpeta(carpeta);
-	await asegurarCarpeta(path.join(carpeta, "tareas"));
+	// Sin subcarpetas por defecto: tareas/ se crea al crear la primera tarea.
 	const fileAbs = path.join(carpeta, `${slug}.md`);
 	await fs.writeFile(fileAbs, tpl.funcionalidad(nombre, hoy()), "utf8");
 	return { slug, nombre, ruta: rutaRelativa(vault, fileAbs) };
@@ -475,28 +436,9 @@ export async function crearTarea(vault, epicaRef, nombre) {
 	const dir = path.join(epica.folder, "tareas");
 	await asegurarCarpeta(dir);
 	const slug = await slugDisponible(dir, slugify(nombre));
-	const carpeta = path.join(dir, slug);
-	await asegurarCarpeta(carpeta);
-	const fileAbs = path.join(carpeta, `${slug}.md`);
+	const fileAbs = path.join(dir, `${slug}.md`);
 	await fs.writeFile(fileAbs, tpl.tarea(nombre, epica.slug, hoy()), "utf8");
 	await appendToSection(epica.file, "## Tareas", `- [ ] [[${slug}|${nombre}]]`);
-	return { slug, nombre, ruta: rutaRelativa(vault, fileAbs) };
-}
-
-export async function crearSubTarea(vault, epicaRef, tareaRef, nombre) {
-	const epica = await resolverEpica(vault, epicaRef);
-	const tareas = await listarTareas(epica);
-	const slugTarea = slugify(tareaRef);
-	const tarea = tareas.find(
-		(t) => t.slug === slugTarea || t.nombre.toLowerCase() === String(tareaRef).toLowerCase()
-	);
-	if (!tarea) throw new Error(`No encontré la tarea "${tareaRef}" en la épica "${epica.nombre}".`);
-	const dir = path.join(tarea.folder, "subtareas");
-	await asegurarCarpeta(dir);
-	const slug = await slugDisponible(dir, slugify(nombre));
-	const fileAbs = path.join(dir, `${slug}.md`);
-	await fs.writeFile(fileAbs, tpl.subTarea(nombre, tarea.slug, epica.slug, hoy()), "utf8");
-	await appendToSection(tarea.file, "## Sub-tareas", `- [ ] [[${slug}|${nombre}]]`);
 	return { slug, nombre, ruta: rutaRelativa(vault, fileAbs) };
 }
 
@@ -506,9 +448,7 @@ export async function crearPendiente(vault, epicaRef, nombre) {
 	await asegurarCarpeta(dir);
 	const fecha = hoy();
 	const slug = await slugDisponible(dir, slugify(nombre));
-	const carpeta = path.join(dir, slug);
-	await asegurarCarpeta(carpeta);
-	const fileAbs = path.join(carpeta, `${slug}.md`);
+	const fileAbs = path.join(dir, `${slug}.md`);
 	await fs.writeFile(fileAbs, tpl.pendiente(nombre, epica.slug, fecha), "utf8");
 	await appendToSection(epica.file, "## Pendientes", `- [ ] [[${slug}|${nombre}]] — ${fecha}`);
 	return { slug, nombre, ruta: rutaRelativa(vault, fileAbs) };

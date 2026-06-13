@@ -1,6 +1,6 @@
 import { TFile, TFolder } from "obsidian";
 import type GestorFuncionesPlugin from "./main";
-import { listPendientes, listSubPendientes, listSubTareas, listTareas } from "./files";
+import { listPendientes, listTareas } from "./files";
 
 const SECCIONES_GESTIONADAS = [
 	"Tareas",
@@ -145,15 +145,6 @@ function renderTareas(
 	const ul = cont.createEl("ul", { cls: "gf-lista-tareas contains-task-list" });
 	for (const t of tareas) {
 		const li = itemTarea(plugin, ul, t.file, t.nombre, sourcePath);
-		const subs = listSubTareas(t.folder);
-		if (subs.length > 0) {
-			const subUl = li.createEl("ul", { cls: "contains-task-list" });
-			for (const s of subs) {
-				const nombre =
-					plugin.app.metadataCache.getFileCache(s)?.frontmatter?.nombre ?? s.basename;
-				itemTarea(plugin, subUl, s, String(nombre), sourcePath);
-			}
-		}
 	}
 }
 
@@ -181,17 +172,6 @@ function renderPendientes(
 	for (const p of items) {
 		const li = itemTarea(plugin, ul, p.file, p.nombre, sourcePath);
 		if (p.fecha) li.appendText(` — ${p.fecha}`);
-		if (p.folder) {
-			const subs = listSubPendientes(p.folder);
-			if (subs.length > 0) {
-				const subUl = li.createEl("ul", { cls: "contains-task-list" });
-				for (const s of subs) {
-					const nombre =
-						app.metadataCache.getFileCache(s)?.frontmatter?.nombre ?? s.basename;
-					itemTarea(plugin, subUl, s, String(nombre), sourcePath);
-				}
-			}
-		}
 	}
 }
 

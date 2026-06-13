@@ -133,27 +133,8 @@ fecha-creacion: ${fecha}
 ## Descripci\xF3n
 <!-- Escribe aqu\xED los detalles de la tarea -->
 
-## Sub-tareas
-<!-- Las sub-tareas aparecen aqu\xED autom\xE1ticamente cuando las creas desde el plugin -->
-
 ## Notas
 <!-- Apuntes relacionados a esta tarea -->
-`;
-}
-function subTarea(nombre, tareaSlug, funcSlug, fecha) {
-  return `---
-tipo: sub-tarea
-tarea-padre: "[[${tareaSlug}]]"
-funcionalidad: "[[${funcSlug}]]"
-nombre: "${escapeYaml(nombre)}"
-estado: pendiente
-fecha-creacion: ${fecha}
----
-
-# ${nombre}
-
-## Descripci\xF3n
-<!-- Escribe aqu\xED los detalles de la sub-tarea -->
 `;
 }
 function apunte(nombre, funcSlug, fecha) {
@@ -188,25 +169,6 @@ fecha: ${fecha}
 
 ## Criterio de completado
 <!-- \xBFCu\xE1ndo se considera resuelto este pendiente? -->
-
-## Sub-pendientes
-<!-- Los sub-pendientes aparecen aqu\xED autom\xE1ticamente cuando los creas desde el plugin -->
-`;
-}
-function subPendiente(nombre, pendienteSlug, funcSlug, fecha) {
-  return `---
-tipo: sub-pendiente
-pendiente-padre: "[[${pendienteSlug}]]"
-epica: "[[${funcSlug}]]"
-nombre: "${escapeYaml(nombre)}"
-estado: pendiente
-fecha-creacion: ${fecha}
----
-
-# ${nombre}
-
-## Descripci\xF3n
-<!-- Escribe aqu\xED los detalles del sub-pendiente -->
 `;
 }
 function reunion(nombre, funcSlug, fecha) {
@@ -343,29 +305,15 @@ function listTareas(app, funcFolder) {
     return [];
   const out = [];
   for (const child of dir.children) {
-    if (!(child instanceof import_obsidian.TFolder))
-      continue;
-    const main = child.children.find(
-      (c) => c instanceof import_obsidian.TFile && c.extension === "md" && c.basename === child.name
-    );
-    if (!main)
-      continue;
-    out.push({
-      slug: child.name,
-      nombre: nombreDesdeFrontmatter(app, main, child.name),
-      file: main,
-      folder: child
-    });
+    if (child instanceof import_obsidian.TFile && child.extension === "md") {
+      out.push({
+        slug: child.basename,
+        nombre: nombreDesdeFrontmatter(app, child, child.basename),
+        file: child
+      });
+    }
   }
   return out.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
-}
-function listSubTareas(tareaFolder) {
-  const dir = tareaFolder.children.find(
-    (c) => c instanceof import_obsidian.TFolder && c.name === "subtareas"
-  );
-  if (!dir)
-    return [];
-  return dir.children.filter((c) => c instanceof import_obsidian.TFile && c.extension === "md").sort((a, b) => a.basename.localeCompare(b.basename, "es"));
 }
 function listPendientes(app, funcFolder) {
   const dir = funcFolder.children.find(
@@ -379,58 +327,19 @@ function listPendientes(app, funcFolder) {
       out.push({
         slug: child.basename,
         nombre: nombreDesdeFrontmatter(app, child, child.basename),
-        file: child,
-        folder: null
-      });
-    } else if (child instanceof import_obsidian.TFolder) {
-      const main = child.children.find(
-        (c) => c instanceof import_obsidian.TFile && c.extension === "md" && c.basename === child.name
-      );
-      if (!main)
-        continue;
-      out.push({
-        slug: child.name,
-        nombre: nombreDesdeFrontmatter(app, main, child.name),
-        file: main,
-        folder: child
+        file: child
       });
     }
   }
   return out.sort((a, b) => a.slug.localeCompare(b.slug, "es"));
 }
-function listSubPendientes(pendFolder) {
-  const dir = pendFolder.children.find(
-    (c) => c instanceof import_obsidian.TFolder && c.name === "subpendientes"
-  );
-  if (!dir)
-    return [];
-  return dir.children.filter((c) => c instanceof import_obsidian.TFile && c.extension === "md").sort((a, b) => a.basename.localeCompare(b.basename, "es"));
-}
 function listIncidencias(app, func) {
   const out = [];
   for (const t of listTareas(app, func.folder)) {
     out.push({ tipo: "tarea", file: t.file, nombre: t.nombre, nivel: 0 });
-    for (const s of listSubTareas(t.folder)) {
-      out.push({
-        tipo: "sub-tarea",
-        file: s,
-        nombre: nombreDesdeFrontmatter(app, s, s.basename),
-        nivel: 1
-      });
-    }
   }
   for (const p of listPendientes(app, func.folder)) {
     out.push({ tipo: "pendiente", file: p.file, nombre: p.nombre, nivel: 0 });
-    if (p.folder) {
-      for (const s of listSubPendientes(p.folder)) {
-        out.push({
-          tipo: "sub-pendiente",
-          file: s,
-          nombre: nombreDesdeFrontmatter(app, s, s.basename),
-          nivel: 1
-        });
-      }
-    }
   }
   return out;
 }
@@ -483,28 +392,16 @@ async function createFuncionalidad(app, adminPath, nombre) {
   if (app.vault.getAbstractFileByPath(funcPath))
     throw new YaExisteError();
   await app.vault.createFolder(funcPath);
-  await app.vault.createFolder(`${funcPath}/tareas`);
   return app.vault.create(`${funcPath}/${slug}.md`, funcionalidad(nombre, hoy()));
 }
 async function createTarea(app, func, slug, nombre) {
   await ensureFolder(app, `${func.folder.path}/tareas`);
-  const dirTarea = (0, import_obsidian.normalizePath)(`${func.folder.path}/tareas/${slug}`);
-  await app.vault.createFolder(dirTarea);
+  const dirTarea = (0, import_obsidian.normalizePath)(`${func.folder.path}/tareas`);
   const file = await app.vault.create(
     `${dirTarea}/${slug}.md`,
     tarea(nombre, func.slug, hoy())
   );
   await appendToSection(app, func.file, "## Tareas", `- [ ] [[${slug}|${nombre}]]`);
-  return file;
-}
-async function createSubTarea(app, func, tarea2, slug, nombre) {
-  const dir = `${tarea2.folder.path}/subtareas`;
-  await ensureFolder(app, dir);
-  const file = await app.vault.create(
-    (0, import_obsidian.normalizePath)(`${dir}/${slug}.md`),
-    subTarea(nombre, tarea2.slug, func.slug, hoy())
-  );
-  await appendToSection(app, tarea2.file, "## Sub-tareas", `- [ ] [[${slug}|${nombre}]]`);
   return file;
 }
 async function createInsumo(app, func, slug, nombre) {
@@ -600,36 +497,12 @@ async function guardarSprints(app, func, sprints) {
 }
 async function createPendiente(app, func, base, nombre, fecha) {
   await ensureFolder(app, `${func.folder.path}/pendientes`);
-  const dirPend = (0, import_obsidian.normalizePath)(`${func.folder.path}/pendientes/${base}`);
-  await app.vault.createFolder(dirPend);
+  const dirPend = (0, import_obsidian.normalizePath)(`${func.folder.path}/pendientes`);
   const file = await app.vault.create(
     `${dirPend}/${base}.md`,
     pendiente(nombre, func.slug, fecha)
   );
   await appendToSection(app, func.file, "## Pendientes", `- [ ] [[${base}|${nombre}]] \u2014 ${fecha}`);
-  return file;
-}
-async function createSubPendiente(app, func, pendiente2, slug, nombre) {
-  let carpeta = pendiente2.folder;
-  if (!carpeta) {
-    const dirPath = (0, import_obsidian.normalizePath)(`${func.folder.path}/pendientes/${pendiente2.slug}`);
-    await app.vault.createFolder(dirPath);
-    await app.fileManager.renameFile(
-      pendiente2.file,
-      (0, import_obsidian.normalizePath)(`${dirPath}/${pendiente2.slug}.md`)
-    );
-    const f = app.vault.getAbstractFileByPath(dirPath);
-    if (!(f instanceof import_obsidian.TFolder))
-      throw new Error("No se pudo convertir el pendiente en carpeta.");
-    carpeta = f;
-  }
-  const dir = `${carpeta.path}/subpendientes`;
-  await ensureFolder(app, dir);
-  const file = await app.vault.create(
-    (0, import_obsidian.normalizePath)(`${dir}/${slug}.md`),
-    subPendiente(nombre, pendiente2.slug, func.slug, hoy())
-  );
-  await appendToSection(app, pendiente2.file, "## Sub-pendientes", `- [ ] [[${slug}|${nombre}]]`);
   return file;
 }
 async function createApunte(app, func, base, nombre, fecha) {
@@ -670,9 +543,7 @@ var DEFAULT_SETTINGS = {
   kanban: {
     carriles: [...CARRILES_DEFECTO],
     tareas: {},
-    subtareas: {},
     pendientes: {},
-    subpendientes: {},
     filtroSprints: { desde: 1, hasta: 52 }
   }
 };
@@ -1042,7 +913,6 @@ function renderSeccion(plugin, cont, funcFolder, sourcePath, titulo) {
   }
 }
 function renderTareas(plugin, cont, funcFolder, sourcePath) {
-  var _a, _b, _c;
   const tareas = listTareas(plugin.app, funcFolder);
   if (tareas.length === 0) {
     cont.createEl("em", { text: "Sin tareas a\xFAn." });
@@ -1051,18 +921,9 @@ function renderTareas(plugin, cont, funcFolder, sourcePath) {
   const ul = cont.createEl("ul", { cls: "gf-lista-tareas contains-task-list" });
   for (const t of tareas) {
     const li = itemTarea(plugin, ul, t.file, t.nombre, sourcePath);
-    const subs = listSubTareas(t.folder);
-    if (subs.length > 0) {
-      const subUl = li.createEl("ul", { cls: "contains-task-list" });
-      for (const s of subs) {
-        const nombre = (_c = (_b = (_a = plugin.app.metadataCache.getFileCache(s)) == null ? void 0 : _a.frontmatter) == null ? void 0 : _b.nombre) != null ? _c : s.basename;
-        itemTarea(plugin, subUl, s, String(nombre), sourcePath);
-      }
-    }
   }
 }
 function renderPendientes(plugin, cont, funcFolder, sourcePath) {
-  var _a, _b, _c;
   const app = plugin.app;
   const pendientes = listPendientes(app, funcFolder);
   if (pendientes.length === 0) {
@@ -1070,10 +931,10 @@ function renderPendientes(plugin, cont, funcFolder, sourcePath) {
     return;
   }
   const items = pendientes.map((p) => {
-    var _a2, _b2, _c2;
-    const fm = (_a2 = app.metadataCache.getFileCache(p.file)) == null ? void 0 : _a2.frontmatter;
+    var _a, _b, _c;
+    const fm = (_a = app.metadataCache.getFileCache(p.file)) == null ? void 0 : _a.frontmatter;
     const fechaFm = (fm == null ? void 0 : fm.fecha) ? String(fm.fecha).slice(0, 10) : "";
-    const fecha = fechaFm || ((_c2 = (_b2 = p.slug.match(/^\d{4}-\d{2}-\d{2}/)) == null ? void 0 : _b2[0]) != null ? _c2 : "");
+    const fecha = fechaFm || ((_c = (_b = p.slug.match(/^\d{4}-\d{2}-\d{2}/)) == null ? void 0 : _b[0]) != null ? _c : "");
     return { ...p, fecha };
   });
   items.sort((a, b) => b.fecha.localeCompare(a.fecha));
@@ -1082,16 +943,6 @@ function renderPendientes(plugin, cont, funcFolder, sourcePath) {
     const li = itemTarea(plugin, ul, p.file, p.nombre, sourcePath);
     if (p.fecha)
       li.appendText(` \u2014 ${p.fecha}`);
-    if (p.folder) {
-      const subs = listSubPendientes(p.folder);
-      if (subs.length > 0) {
-        const subUl = li.createEl("ul", { cls: "contains-task-list" });
-        for (const s of subs) {
-          const nombre = (_c = (_b = (_a = app.metadataCache.getFileCache(s)) == null ? void 0 : _a.frontmatter) == null ? void 0 : _b.nombre) != null ? _c : s.basename;
-          itemTarea(plugin, subUl, s, String(nombre), sourcePath);
-        }
-      }
-    }
   }
 }
 function itemTarea(plugin, ul, file, nombre, sourcePath) {
@@ -1195,18 +1046,12 @@ var SECCIONES = [
   {
     titulo: "Incidencias",
     acciones: [
+      { icono: "check-square", texto: "Crear tarea", accion: (p) => p.abrirModal("tarea") },
+      { icono: "hourglass", texto: "Crear pendiente", accion: (p) => p.abrirModal("pendiente") },
       {
         icono: "kanban-square",
         texto: "Gesti\xF3n de incidencias",
         accion: (p) => void p.abrirKanban()
-      },
-      { icono: "check-square", texto: "Crear tarea", accion: (p) => p.abrirModal("tarea") },
-      { icono: "list-checks", texto: "Crear sub-tarea", accion: (p) => p.abrirModal("subtarea") },
-      { icono: "hourglass", texto: "Crear pendiente", accion: (p) => p.abrirModal("pendiente") },
-      {
-        icono: "list-todo",
-        texto: "Crear sub-pendiente",
-        accion: (p) => p.abrirModal("subpendiente")
       }
     ]
   },
@@ -1406,37 +1251,24 @@ var KanbanView = class extends import_obsidian5.ItemView {
   /** Junta las incidencias de un contenedor (épica o funcionalidad). */
   recolectarContenedor(admin, ref, contexto) {
     for (const tarea2 of listTareas(this.app, ref.folder)) {
-      const subs = listSubTareas(tarea2.folder).map((s) => ({
-        key: claveRelativa(admin, s.path),
-        file: s
-      }));
       this.tareas.push({
-        key: claveRelativa(admin, tarea2.folder.path),
+        key: claveRelativa(admin, tarea2.file.path),
         file: tarea2.file,
         nombre: tarea2.nombre,
-        contexto,
-        subs
+        contexto
       });
     }
     for (const pend of listPendientes(this.app, ref.folder)) {
-      const subs = pend.folder ? listSubPendientes(pend.folder).map((s) => ({
-        key: claveRelativa(admin, s.path),
-        file: s
-      })) : [];
       this.pendientes.push({
-        key: pend.folder ? claveRelativa(admin, pend.folder.path) : claveRelativa(admin, pend.file.path),
+        key: claveRelativa(admin, pend.file.path),
         file: pend.file,
         nombre: pend.nombre,
-        contexto,
-        subs
+        contexto
       });
     }
   }
   mapa(grupo) {
     return grupo === "tareas" ? this.plugin.settings.kanban.tareas : this.plugin.settings.kanban.pendientes;
-  }
-  mapaSubs(grupo) {
-    return grupo === "tareas" ? this.plugin.settings.kanban.subtareas : this.plugin.settings.kanban.subpendientes;
   }
   items(grupo) {
     return grupo === "tareas" ? this.tareas : this.pendientes;
@@ -1449,19 +1281,11 @@ var KanbanView = class extends import_obsidian5.ItemView {
     let cambio = false;
     const sincronizar = (grupo) => {
       const mapa = this.mapa(grupo);
-      const mapaSubs = this.mapaSubs(grupo);
       for (const it of this.items(grupo)) {
         const carril = this.carrilPorEstado(this.estadoDe(it.file));
         if (carril && mapa[it.key] !== carril) {
           mapa[it.key] = carril;
           cambio = true;
-        }
-        for (const sub of it.subs) {
-          const carrilSub = this.carrilPorEstado(this.estadoDe(sub.file));
-          if (carrilSub && mapaSubs[sub.key] !== carrilSub) {
-            mapaSubs[sub.key] = carrilSub;
-            cambio = true;
-          }
         }
       }
     };
@@ -1503,12 +1327,7 @@ var KanbanView = class extends import_obsidian5.ItemView {
       }
     };
     limpiar(k.tareas, new Set(this.tareas.map((it) => it.key)));
-    limpiar(k.subtareas, new Set(this.tareas.flatMap((it) => it.subs.map((s) => s.key))));
     limpiar(k.pendientes, new Set(this.pendientes.map((it) => it.key)));
-    limpiar(
-      k.subpendientes,
-      new Set(this.pendientes.flatMap((it) => it.subs.map((s) => s.key)))
-    );
   }
   async guardar() {
     this.podar();
@@ -1669,38 +1488,10 @@ var KanbanView = class extends import_obsidian5.ItemView {
     });
     const head = card.createDiv({ cls: "gf-kanban-card-head" });
     head.createDiv({ cls: "gf-kanban-card-nombre", text: it.nombre });
-    if (it.subs.length > 0) {
-      const expandida = this.expandidas.has(it.key);
-      const btn = head.createEl("span", {
-        cls: "gf-kanban-expand",
-        text: expandida ? "\u25B2" : "\u25BC",
-        attr: { role: "button", title: expandida ? "Colapsar" : "Ver sub-elementos" }
-      });
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (expandida)
-          this.expandidas.delete(it.key);
-        else
-          this.expandidas.add(it.key);
-        this.render();
-      });
-    }
     card.createDiv({ cls: "gf-kanban-card-func", text: it.contexto });
     const fecha = this.fechaCreacion(it.file);
     if (fecha)
       card.createDiv({ cls: "gf-kanban-card-fecha", text: fecha });
-    if (it.subs.length > 0) {
-      const mapaSubs = this.mapaSubs(grupo);
-      const hechas = it.subs.filter(
-        (s) => estadoDeCarril(this.carrilDe(s.key, mapaSubs)) === "completado"
-      ).length;
-      const pct = Math.round(hechas / it.subs.length * 100);
-      const prog = card.createDiv({ cls: "gf-kanban-progreso" });
-      prog.createDiv({ cls: "gf-kanban-progreso-texto", text: `${pct}%` });
-      const barra = prog.createDiv({ cls: "gf-kanban-progreso-barra" });
-      const relleno = barra.createDiv({ cls: "gf-kanban-progreso-relleno" });
-      relleno.style.width = `${pct}%`;
-    }
     card.addEventListener("click", () => {
       void this.app.workspace.getLeaf(false).openFile(it.file);
     });
@@ -1712,80 +1503,6 @@ var KanbanView = class extends import_obsidian5.ItemView {
           continue;
         menu.addItem(
           (item) => item.setTitle(`Mover a: ${carril}`).onClick(() => void this.moverCard(grupo, it.key, carril))
-        );
-      }
-      menu.showAtMouseEvent(e);
-    });
-    if (this.expandidas.has(it.key)) {
-      this.renderSubTablero(card, it, grupo);
-    }
-  }
-  /** Sub-tablero de sub-elementos: mini-carriles apilados con los carriles globales. */
-  renderSubTablero(card, it, grupo) {
-    const k = this.plugin.settings.kanban;
-    const sub = card.createDiv({ cls: "gf-kanban-subboard" });
-    sub.addEventListener("click", (e) => e.stopPropagation());
-    for (const carril of k.carriles) {
-      const mini = sub.createDiv({ cls: "gf-kanban-minilane" });
-      mini.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        mini.addClass("gf-drop");
-      });
-      mini.addEventListener("dragleave", () => mini.removeClass("gf-drop"));
-      mini.addEventListener("drop", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        mini.removeClass("gf-drop");
-        const payload = leerPayload(e);
-        if ((payload == null ? void 0 : payload.tipo) === "sub" && payload.cardKey === it.key && payload.grupo === grupo) {
-          void this.moverSub(grupo, payload.valor, carril);
-        }
-      });
-      mini.createDiv({ cls: "gf-kanban-minilane-titulo", text: carril });
-      const mapaSubs = this.mapaSubs(grupo);
-      const subsAqui = it.subs.filter((s) => this.carrilDe(s.key, mapaSubs) === carril);
-      for (const s of subsAqui) {
-        this.renderSubTarjeta(mini, s, it, carril, grupo);
-      }
-    }
-  }
-  renderSubTarjeta(mini, s, it, carrilActual, grupo) {
-    var _a;
-    const fm = (_a = this.app.metadataCache.getFileCache(s.file)) == null ? void 0 : _a.frontmatter;
-    const nombre = (fm == null ? void 0 : fm.nombre) ? String(fm.nombre) : s.file.basename;
-    const card = mini.createDiv({ cls: "gf-kanban-subcard" });
-    card.draggable = true;
-    card.addEventListener("dragstart", (e) => {
-      var _a2;
-      e.stopPropagation();
-      (_a2 = e.dataTransfer) == null ? void 0 : _a2.setData(
-        "text/plain",
-        JSON.stringify({
-          tipo: "sub",
-          grupo,
-          valor: s.key,
-          cardKey: it.key
-        })
-      );
-    });
-    card.createDiv({ cls: "gf-kanban-card-nombre", text: nombre });
-    const fecha = this.fechaCreacion(s.file);
-    if (fecha)
-      card.createDiv({ cls: "gf-kanban-card-fecha", text: fecha });
-    card.addEventListener("click", (e) => {
-      e.stopPropagation();
-      void this.app.workspace.getLeaf(false).openFile(s.file);
-    });
-    card.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const menu = new import_obsidian5.Menu();
-      for (const carril of this.plugin.settings.kanban.carriles) {
-        if (carril === carrilActual)
-          continue;
-        menu.addItem(
-          (item) => item.setTitle(`Mover a: ${carril}`).onClick(() => void this.moverSub(grupo, s.key, carril))
         );
       }
       menu.showAtMouseEvent(e);
@@ -1805,17 +1522,6 @@ var KanbanView = class extends import_obsidian5.ItemView {
     this.mapa(grupo)[key] = carril;
     await this.guardar();
     await this.app.fileManager.processFrontMatter(it.file, (fm) => {
-      fm.estado = estadoDeCarril(carril);
-    });
-    this.render();
-  }
-  async moverSub(grupo, key, carril) {
-    const sub = this.items(grupo).flatMap((i) => i.subs).find((s) => s.key === key);
-    if (!sub)
-      return;
-    this.mapaSubs(grupo)[key] = carril;
-    await this.guardar();
-    await this.app.fileManager.processFrontMatter(sub.file, (fm) => {
       fm.estado = estadoDeCarril(carril);
     });
     this.render();
@@ -1861,7 +1567,7 @@ var KanbanView = class extends import_obsidian5.ItemView {
       }
       terminado = true;
       k.carriles[indice] = nuevo;
-      for (const mapa of [k.tareas, k.subtareas, k.pendientes, k.subpendientes]) {
+      for (const mapa of [k.tareas, k.pendientes]) {
         for (const [key, carril] of Object.entries(mapa)) {
           if (carril === original)
             mapa[key] = nuevo;
@@ -2270,104 +1976,6 @@ var CrearTareaModal = class extends GestorModal {
     }
   }
 };
-var CrearSubTareaModal = class extends GestorModal {
-  constructor() {
-    super(...arguments);
-    this.duplicadoPendiente = null;
-  }
-  onOpen() {
-    this.titleEl.setText("Crear sub-tarea");
-    const funcs = listFuncionalidades(this.app, this.plugin.settings.carpetaAdmin);
-    const func = this.campoEpica(funcs);
-    const fn = this.campoFuncionalidad(func);
-    const tarea2 = this.campoSelect("Tarea padre", "Seleccionar tarea");
-    tarea2.select.disabled = true;
-    const nombre = this.campoTexto("Nombre de la sub-tarea", "Escribe nombre de la sub-tarea");
-    const colaboradores = this.campoColaboradores();
-    let tareas = [];
-    let avisoSinTareas = null;
-    this.botones(async () => {
-      var _a;
-      this.limpiarError(func);
-      this.limpiarError(tarea2);
-      this.limpiarError(nombre);
-      const f = func.getFunc();
-      const t = tareas.find((x) => x.slug === tarea2.select.value);
-      const valor = nombre.input.value.trim();
-      let ok = true;
-      if (!f) {
-        this.mostrarError(func, MSG_OBLIGATORIO);
-        ok = false;
-      }
-      if (!t) {
-        this.mostrarError(tarea2, MSG_OBLIGATORIO);
-        ok = false;
-      }
-      if (!valor || !slugify(valor)) {
-        this.mostrarError(nombre, MSG_OBLIGATORIO);
-        ok = false;
-      }
-      if (!ok || !f || !t)
-        return;
-      const destino = (_a = fn.getFn()) != null ? _a : f;
-      let slug = slugify(valor);
-      const dir = `${t.folder.path}/subtareas`;
-      if (existeEnDir(this.app, dir, slug)) {
-        const clave = `${t.folder.path}/${slug}`;
-        if (this.duplicadoPendiente !== clave) {
-          this.duplicadoPendiente = clave;
-          this.mostrarError(nombre, MSG_DUPLICADO);
-          return;
-        }
-        slug = slugDisponible(this.app, dir, slug);
-      }
-      try {
-        const file = await createSubTarea(this.app, destino, t, slug, valor);
-        await this.aplicarAsignados(file, colaboradores.getSeleccionados());
-        const admin = this.plugin.settings.carpetaAdmin;
-        this.plugin.settings.kanban.subtareas[claveRelativa(admin, file.path)] = "POR HACER";
-        await this.plugin.saveSettings();
-        this.close();
-        await this.abrirNota(file);
-      } catch (e) {
-        console.error(e);
-        new import_obsidian6.Notice("Gesti\xF3n Producto: error al crear la sub-tarea.");
-      }
-    });
-    if (funcs.length === 0) {
-      this.sinEpicas(func);
-      return;
-    }
-    fn.select.addEventListener("change", () => {
-      var _a;
-      this.limpiarError(tarea2);
-      avisoSinTareas == null ? void 0 : avisoSinTareas.remove();
-      avisoSinTareas = null;
-      const f = func.getFunc();
-      const destino = (_a = fn.getFn()) != null ? _a : f;
-      tareas = destino ? listTareas(this.app, destino.folder) : [];
-      if (tareas.length === 0) {
-        tarea2.select.disabled = true;
-        this.setOpciones(tarea2.select, "Seleccionar tarea", []);
-        if (destino) {
-          avisoSinTareas = tarea2.wrap.createDiv({
-            cls: "gf-campo-aviso",
-            text: fn.getFn() ? "Esta funcionalidad no tiene tareas a\xFAn." : "Esta \xE9pica no tiene tareas a\xFAn."
-          });
-        }
-        this.crearBtn.disabled = true;
-      } else {
-        tarea2.select.disabled = false;
-        this.setOpciones(
-          tarea2.select,
-          "Seleccionar tarea",
-          tareas.map((t) => ({ value: t.slug, label: t.nombre }))
-        );
-        this.crearBtn.disabled = false;
-      }
-    });
-  }
-};
 var CrearFechadoModal = class extends GestorModal {
   constructor() {
     super(...arguments);
@@ -2756,106 +2364,6 @@ var CrearHistoriaModal = class extends CrearSimpleModal {
     return createHistoria(this.app, func, slug, nombre);
   }
 };
-var CrearSubPendienteModal = class extends GestorModal {
-  constructor() {
-    super(...arguments);
-    this.duplicadoPendiente = null;
-  }
-  onOpen() {
-    this.titleEl.setText("Crear sub-pendiente");
-    const funcs = listFuncionalidades(this.app, this.plugin.settings.carpetaAdmin);
-    const func = this.campoEpica(funcs);
-    const fn = this.campoFuncionalidad(func);
-    const pendiente2 = this.campoSelect("Pendiente padre", "Seleccionar pendiente");
-    pendiente2.select.disabled = true;
-    const nombre = this.campoTexto(
-      "Nombre del sub-pendiente",
-      "Escribe nombre del sub-pendiente"
-    );
-    const colaboradores = this.campoColaboradores();
-    let pendientes = [];
-    let avisoSinPendientes = null;
-    this.botones(async () => {
-      var _a;
-      this.limpiarError(func);
-      this.limpiarError(pendiente2);
-      this.limpiarError(nombre);
-      const f = func.getFunc();
-      const p = pendientes.find((x) => x.slug === pendiente2.select.value);
-      const valor = nombre.input.value.trim();
-      let ok = true;
-      if (!f) {
-        this.mostrarError(func, MSG_OBLIGATORIO);
-        ok = false;
-      }
-      if (!p) {
-        this.mostrarError(pendiente2, MSG_OBLIGATORIO);
-        ok = false;
-      }
-      if (!valor || !slugify(valor)) {
-        this.mostrarError(nombre, MSG_OBLIGATORIO);
-        ok = false;
-      }
-      if (!ok || !f || !p)
-        return;
-      const destino = (_a = fn.getFn()) != null ? _a : f;
-      let slug = slugify(valor);
-      const dir = `${destino.folder.path}/pendientes/${p.slug}/subpendientes`;
-      const existe = slug === p.slug || existeEnDir(this.app, dir, slug);
-      if (existe) {
-        const clave = `${destino.folder.path}/${p.slug}/${slug}`;
-        if (this.duplicadoPendiente !== clave) {
-          this.duplicadoPendiente = clave;
-          this.mostrarError(nombre, MSG_DUPLICADO);
-          return;
-        }
-        slug = slugDisponible(this.app, dir, slug);
-        if (slug === p.slug)
-          slug = `${slug}-2`;
-      }
-      try {
-        const file = await createSubPendiente(this.app, destino, p, slug, valor);
-        await this.aplicarAsignados(file, colaboradores.getSeleccionados());
-        this.close();
-        await this.abrirNota(file);
-      } catch (e) {
-        console.error(e);
-        new import_obsidian6.Notice("Gesti\xF3n Producto: error al crear el sub-pendiente.");
-      }
-    });
-    if (funcs.length === 0) {
-      this.sinEpicas(func);
-      return;
-    }
-    fn.select.addEventListener("change", () => {
-      var _a;
-      this.limpiarError(pendiente2);
-      avisoSinPendientes == null ? void 0 : avisoSinPendientes.remove();
-      avisoSinPendientes = null;
-      const destino = (_a = fn.getFn()) != null ? _a : func.getFunc();
-      pendientes = destino ? listPendientes(this.app, destino.folder) : [];
-      if (pendientes.length === 0) {
-        pendiente2.select.disabled = true;
-        this.setOpciones(pendiente2.select, "Seleccionar pendiente", []);
-        if (destino) {
-          avisoSinPendientes = pendiente2.wrap.createDiv({
-            cls: "gf-campo-aviso",
-            text: fn.getFn() ? "Esta funcionalidad no tiene pendientes a\xFAn." : "Esta \xE9pica no tiene pendientes a\xFAn."
-          });
-        }
-        this.crearBtn.disabled = true;
-      } else {
-        pendiente2.select.disabled = false;
-        this.setOpciones(
-          pendiente2.select,
-          "Seleccionar pendiente",
-          pendientes.map((p) => ({ value: p.slug, label: p.nombre }))
-        );
-        this.crearBtn.disabled = false;
-      }
-    });
-  }
-};
 var MoverEpicaModal = class extends GestorModal {
   onOpen() {
     this.titleEl.setText("Mover \xE9pica");
@@ -3119,9 +2627,7 @@ var AsignarColaboradorModal = class extends GestorModal {
     });
     const ETIQUETA_TIPO = {
       tarea: "Tarea",
-      "sub-tarea": "Sub-tarea",
-      pendiente: "Pendiente",
-      "sub-pendiente": "Sub-pendiente"
+      pendiente: "Pendiente"
     };
     const renderIncidencias = () => {
       listaWrap.empty();
@@ -3765,9 +3271,7 @@ var TareasColaboradorView = class extends import_obsidian8.ItemView {
   tipoLegible(tipo) {
     const nombres = {
       tarea: "Tarea",
-      "sub-tarea": "Sub-tarea",
-      pendiente: "Pendiente",
-      "sub-pendiente": "Sub-pendiente"
+      pendiente: "Pendiente"
     };
     return nombres[tipo];
   }
@@ -3821,11 +3325,6 @@ var GestorFuncionesPlugin = class extends import_obsidian9.Plugin {
       callback: () => this.abrirModal("tarea")
     });
     this.addCommand({
-      id: "crear-sub-tarea",
-      name: "Crear sub-tarea",
-      callback: () => this.abrirModal("subtarea")
-    });
-    this.addCommand({
       id: "crear-apunte",
       name: "Crear apunte",
       callback: () => this.abrirModal("apunte")
@@ -3839,11 +3338,6 @@ var GestorFuncionesPlugin = class extends import_obsidian9.Plugin {
       id: "crear-pendiente",
       name: "Crear pendiente",
       callback: () => this.abrirModal("pendiente")
-    });
-    this.addCommand({
-      id: "crear-sub-pendiente",
-      name: "Crear sub-pendiente",
-      callback: () => this.abrirModal("subpendiente")
     });
     this.addCommand({
       id: "crear-insumo",
@@ -3923,9 +3417,6 @@ var GestorFuncionesPlugin = class extends import_obsidian9.Plugin {
       case "tarea":
         new CrearTareaModal(this).open();
         break;
-      case "subtarea":
-        new CrearSubTareaModal(this).open();
-        break;
       case "apunte":
         new CrearApunteModal(this).open();
         break;
@@ -3934,9 +3425,6 @@ var GestorFuncionesPlugin = class extends import_obsidian9.Plugin {
         break;
       case "pendiente":
         new CrearPendienteModal(this).open();
-        break;
-      case "subpendiente":
-        new CrearSubPendienteModal(this).open();
         break;
       case "insumo":
         new CrearInsumoModal(this).open();
@@ -4009,7 +3497,7 @@ var GestorFuncionesPlugin = class extends import_obsidian9.Plugin {
     await this.app.workspace.revealLeaf(hoja);
   }
   async loadSettings() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
     const data = (_a = await this.loadData()) != null ? _a : {};
     const etiquetas = ((_b = data.etiquetas) != null ? _b : []).map(
       (e) => typeof e === "string" ? { nombre: e, color: COLOR_ETIQUETA_DEFECTO } : { nombre: String(e.nombre), color: e.color || COLOR_ETIQUETA_DEFECTO }
@@ -4042,9 +3530,7 @@ var GestorFuncionesPlugin = class extends import_obsidian9.Plugin {
       kanban: {
         carriles,
         tareas: { ...(_i = (_h = data.kanban) == null ? void 0 : _h.tareas) != null ? _i : {} },
-        subtareas: { ...(_k = (_j = data.kanban) == null ? void 0 : _j.subtareas) != null ? _k : {} },
-        pendientes: { ...(_m = (_l = data.kanban) == null ? void 0 : _l.pendientes) != null ? _m : {} },
-        subpendientes: { ...(_o = (_n = data.kanban) == null ? void 0 : _n.subpendientes) != null ? _o : {} },
+        pendientes: { ...(_k = (_j = data.kanban) == null ? void 0 : _j.pendientes) != null ? _k : {} },
         filtroSprints: {
           desde: (filtro == null ? void 0 : filtro.desde) && filtro.desde >= 1 && filtro.desde <= 52 ? filtro.desde : 1,
           hasta: (filtro == null ? void 0 : filtro.hasta) && filtro.hasta >= 1 && filtro.hasta <= 52 ? filtro.hasta : 52

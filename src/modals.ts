@@ -374,110 +374,6 @@ export class CrearTareaModal extends GestorModal {
 	}
 }
 
-export class CrearSubTareaModal extends GestorModal {
-	private duplicadoPendiente: string | null = null;
-
-	onOpen(): void {
-		this.titleEl.setText("Crear sub-tarea");
-		const funcs = files.listFuncionalidades(this.app, this.plugin.settings.carpetaAdmin);
-		const func = this.campoEpica(funcs);
-		const fn = this.campoFuncionalidad(func);
-		const tarea = this.campoSelect("Tarea padre", "Seleccionar tarea");
-		tarea.select.disabled = true;
-		const nombre = this.campoTexto("Nombre de la sub-tarea", "Escribe nombre de la sub-tarea");
-		const colaboradores = this.campoColaboradores();
-
-		let tareas: files.TareaRef[] = [];
-		let avisoSinTareas: HTMLElement | null = null;
-
-		this.botones(async () => {
-			this.limpiarError(func);
-			this.limpiarError(tarea);
-			this.limpiarError(nombre);
-			const f = func.getFunc();
-			const t = tareas.find((x) => x.slug === tarea.select.value);
-			const valor = nombre.input.value.trim();
-			let ok = true;
-			if (!f) {
-				this.mostrarError(func, MSG_OBLIGATORIO);
-				ok = false;
-			}
-			if (!t) {
-				this.mostrarError(tarea, MSG_OBLIGATORIO);
-				ok = false;
-			}
-			if (!valor || !slugify(valor)) {
-				this.mostrarError(nombre, MSG_OBLIGATORIO);
-				ok = false;
-			}
-			if (!ok || !f || !t) return;
-			const destino = fn.getFn() ?? f;
-
-			let slug = slugify(valor);
-			const dir = `${t.folder.path}/subtareas`;
-			if (files.existeEnDir(this.app, dir, slug)) {
-				const clave = `${t.folder.path}/${slug}`;
-				if (this.duplicadoPendiente !== clave) {
-					this.duplicadoPendiente = clave;
-					this.mostrarError(nombre, MSG_DUPLICADO);
-					return;
-				}
-				slug = files.slugDisponible(this.app, dir, slug);
-			}
-			try {
-				const file = await files.createSubTarea(this.app, destino, t, slug, valor);
-				await this.aplicarAsignados(file, colaboradores.getSeleccionados());
-				// Las sub-tareas nuevas entran al sub-tablero en POR HACER.
-				const admin = this.plugin.settings.carpetaAdmin;
-				this.plugin.settings.kanban.subtareas[files.claveRelativa(admin, file.path)] =
-					"POR HACER";
-				await this.plugin.saveSettings();
-				this.close();
-				await this.abrirNota(file);
-			} catch (e) {
-				console.error(e);
-				new Notice("Gestión Producto: error al crear la sub-tarea.");
-			}
-		});
-
-		if (funcs.length === 0) {
-			this.sinEpicas(func);
-			return;
-		}
-
-		// Las tareas dependen del destino: la funcionalidad elegida o la épica.
-		fn.select.addEventListener("change", () => {
-			this.limpiarError(tarea);
-			avisoSinTareas?.remove();
-			avisoSinTareas = null;
-			const f = func.getFunc();
-			const destino = fn.getFn() ?? f;
-			tareas = destino ? files.listTareas(this.app, destino.folder) : [];
-			if (tareas.length === 0) {
-				tarea.select.disabled = true;
-				this.setOpciones(tarea.select, "Seleccionar tarea", []);
-				if (destino) {
-					avisoSinTareas = tarea.wrap.createDiv({
-						cls: "gf-campo-aviso",
-						text: fn.getFn()
-							? "Esta funcionalidad no tiene tareas aún."
-							: "Esta épica no tiene tareas aún.",
-					});
-				}
-				this.crearBtn.disabled = true;
-			} else {
-				tarea.select.disabled = false;
-				this.setOpciones(
-					tarea.select,
-					"Seleccionar tarea",
-					tareas.map((t) => ({ value: t.slug, label: t.nombre }))
-				);
-				this.crearBtn.disabled = false;
-			}
-		});
-	}
-}
-
 /** Base compartida para apuntes y notas de reunión (archivos con prefijo de fecha). */
 abstract class CrearFechadoModal extends GestorModal {
 	protected abstract titulo: string;
@@ -918,107 +814,6 @@ export class CrearHistoriaModal extends CrearSimpleModal {
 	}
 }
 
-export class CrearSubPendienteModal extends GestorModal {
-	private duplicadoPendiente: string | null = null;
-
-	onOpen(): void {
-		this.titleEl.setText("Crear sub-pendiente");
-		const funcs = files.listFuncionalidades(this.app, this.plugin.settings.carpetaAdmin);
-		const func = this.campoEpica(funcs);
-		const fn = this.campoFuncionalidad(func);
-		const pendiente = this.campoSelect("Pendiente padre", "Seleccionar pendiente");
-		pendiente.select.disabled = true;
-		const nombre = this.campoTexto(
-			"Nombre del sub-pendiente",
-			"Escribe nombre del sub-pendiente"
-		);
-		const colaboradores = this.campoColaboradores();
-
-		let pendientes: files.PendienteRef[] = [];
-		let avisoSinPendientes: HTMLElement | null = null;
-
-		this.botones(async () => {
-			this.limpiarError(func);
-			this.limpiarError(pendiente);
-			this.limpiarError(nombre);
-			const f = func.getFunc();
-			const p = pendientes.find((x) => x.slug === pendiente.select.value);
-			const valor = nombre.input.value.trim();
-			let ok = true;
-			if (!f) {
-				this.mostrarError(func, MSG_OBLIGATORIO);
-				ok = false;
-			}
-			if (!p) {
-				this.mostrarError(pendiente, MSG_OBLIGATORIO);
-				ok = false;
-			}
-			if (!valor || !slugify(valor)) {
-				this.mostrarError(nombre, MSG_OBLIGATORIO);
-				ok = false;
-			}
-			if (!ok || !f || !p) return;
-			const destino = fn.getFn() ?? f;
-
-			let slug = slugify(valor);
-			const dir = `${destino.folder.path}/pendientes/${p.slug}/subpendientes`;
-			const existe = slug === p.slug || files.existeEnDir(this.app, dir, slug);
-			if (existe) {
-				const clave = `${destino.folder.path}/${p.slug}/${slug}`;
-				if (this.duplicadoPendiente !== clave) {
-					this.duplicadoPendiente = clave;
-					this.mostrarError(nombre, MSG_DUPLICADO);
-					return;
-				}
-				slug = files.slugDisponible(this.app, dir, slug);
-				if (slug === p.slug) slug = `${slug}-2`;
-			}
-			try {
-				const file = await files.createSubPendiente(this.app, destino, p, slug, valor);
-				await this.aplicarAsignados(file, colaboradores.getSeleccionados());
-				this.close();
-				await this.abrirNota(file);
-			} catch (e) {
-				console.error(e);
-				new Notice("Gestión Producto: error al crear el sub-pendiente.");
-			}
-		});
-
-		if (funcs.length === 0) {
-			this.sinEpicas(func);
-			return;
-		}
-
-		fn.select.addEventListener("change", () => {
-			this.limpiarError(pendiente);
-			avisoSinPendientes?.remove();
-			avisoSinPendientes = null;
-			const destino = fn.getFn() ?? func.getFunc();
-			pendientes = destino ? files.listPendientes(this.app, destino.folder) : [];
-			if (pendientes.length === 0) {
-				pendiente.select.disabled = true;
-				this.setOpciones(pendiente.select, "Seleccionar pendiente", []);
-				if (destino) {
-					avisoSinPendientes = pendiente.wrap.createDiv({
-						cls: "gf-campo-aviso",
-						text: fn.getFn()
-							? "Esta funcionalidad no tiene pendientes aún."
-							: "Esta épica no tiene pendientes aún.",
-					});
-				}
-				this.crearBtn.disabled = true;
-			} else {
-				pendiente.select.disabled = false;
-				this.setOpciones(
-					pendiente.select,
-					"Seleccionar pendiente",
-					pendientes.map((p) => ({ value: p.slug, label: p.nombre }))
-				);
-				this.crearBtn.disabled = false;
-			}
-		});
-	}
-}
 
 /** Mover épicas entre las carpetas de activas e inactivas. */
 export class MoverEpicaModal extends GestorModal {
@@ -1209,7 +1004,7 @@ export class GestionColaboradoresModal extends GestorModal {
 	}
 }
 
-/** Asignar colaboradores a incidencias (tareas, sub-tareas, pendientes, sub-pendientes). */
+/** Asignar colaboradores a incidencias (tareas y pendientes). */
 export class AsignarColaboradorModal extends GestorModal {
 	private seleccionados = new Set<string>();
 	private filas: Array<{ file: TFile; chk: HTMLInputElement }> = [];
@@ -1311,9 +1106,7 @@ export class AsignarColaboradorModal extends GestorModal {
 
 		const ETIQUETA_TIPO: Record<files.Incidencia["tipo"], string> = {
 			tarea: "Tarea",
-			"sub-tarea": "Sub-tarea",
 			pendiente: "Pendiente",
-			"sub-pendiente": "Sub-pendiente",
 		};
 
 		const renderIncidencias = () => {

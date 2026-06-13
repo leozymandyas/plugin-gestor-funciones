@@ -19,8 +19,8 @@ El plugin trabaja con una jerarquía pensada para gestión de producto:
 - **Épica** — el contenedor principal de un esfuerzo de producto. Se guardan en las
   carpetas `Épicas activas/` y `Épicas inactivas/` de tu vault.
 - **Funcionalidad** — un módulo o parte de trabajo dentro de una épica.
-- **Tarea** y **sub-tarea** — el trabajo concreto, con estado (por hacer, en progreso, etc.).
-- **Pendiente** y **sub-pendiente** — cosas por resolver, con su criterio de completado.
+- **Tarea** — el trabajo concreto, con estado (por hacer, en progreso, etc.).
+- **Pendiente** — cosas por resolver, con su criterio de completado.
 - **Apunte** — notas sueltas relacionadas con la épica.
 - **Nota de reunión** — con plantilla de asistentes, temas, acuerdos y próximos pasos.
 - **Insumo** e **historia** — entradas de producto e historias de usuario.
@@ -36,11 +36,11 @@ automáticamente y con nombres "slugificados" (`Diseñar pantalla de login` →
 - **Panel de acciones** lateral (ícono en la barra izquierda de Obsidian) con botones
   para crear cada tipo de elemento, sin memorizar comandos.
 - **Comandos** en la paleta (`Cmd/Ctrl + P`): crear épica, funcionalidad, tarea,
-  sub-tarea, pendiente, apunte, nota de reunión, insumo, historia, asignar sprint,
+  pendiente, apunte, nota de reunión, insumo, historia, asignar sprint,
   asignar colaborador, cambiar estado, mover épica, y más.
 - **Dashboard de épica**: la nota principal de cada épica se renderiza en modo lectura
-  como un tablero, con sus tareas como casillas que actualizan su estado al hacer clic,
-  sub-tareas anidadas y notas ordenadas por fecha.
+  como un tablero, con sus tareas como casillas que actualizan su estado al hacer clic
+  y notas ordenadas por fecha.
 - **Tablero Kanban** (gestión de incidencias): arrastra tareas y pendientes entre
   columnas para cambiar su estado.
 - **Roadmap**: vista general del avance de las épicas por estado.

@@ -7,3 +7,6 @@ node_modules/
 
 # Configuración local de Claude Code
 .claude/settings.local.json
+
+# Notas personales del autor (no forman parte del plugin público)
+*.local.md

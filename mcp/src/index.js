@@ -17,7 +17,6 @@ import {
 	crearEpica,
 	crearFuncionalidad,
 	crearTarea,
-	crearSubTarea,
 	crearPendiente,
 	crearApunte,
 	crearReunion,
@@ -103,7 +102,7 @@ server.tool(
 
 server.tool(
 	"detalle_epica",
-	"Devuelve el detalle completo de una épica: tareas (con sub-tareas y estado), pendientes, apuntes, reuniones, insumos, historias y funcionalidades. La épica se identifica por su nombre o slug.",
+	"Devuelve el detalle completo de una épica: tareas (con su estado), pendientes, apuntes, reuniones, insumos, historias y funcionalidades. La épica se identifica por su nombre o slug.",
 	{ vault: vaultArg, epica: z.string().describe("Nombre o slug de la épica.") },
 	async ({ vault, epica }) => {
 		try {
@@ -192,25 +191,6 @@ server.tool(
 		try {
 			const v = await resolverVault(vault);
 			return ok(await crearTarea(v, epica, nombre));
-		} catch (e) {
-			return fail(e);
-		}
-	}
-);
-
-server.tool(
-	"crear_subtarea",
-	"Crea una sub-tarea dentro de una tarea de una épica.",
-	{
-		vault: vaultArg,
-		epica: z.string().describe("Nombre o slug de la épica."),
-		tarea: z.string().describe("Nombre o slug de la tarea padre."),
-		nombre: z.string().describe("Nombre de la sub-tarea."),
-	},
-	async ({ vault, epica, tarea, nombre }) => {
-		try {
-			const v = await resolverVault(vault);
-			return ok(await crearSubTarea(v, epica, tarea, nombre));
 		} catch (e) {
 			return fail(e);
 		}
@@ -310,7 +290,7 @@ server.tool(
 
 server.tool(
 	"cambiar_estado",
-	"Cambia el valor de 'estado' en el frontmatter de una nota (tarea, sub-tarea, pendiente o funcionalidad), identificada por su ruta relativa al vault. Estados típicos: backlog, pendiente, en-progreso, completado.",
+	"Cambia el valor de 'estado' en el frontmatter de una nota (tarea, pendiente o funcionalidad), identificada por su ruta relativa al vault. Estados típicos: backlog, pendiente, en-progreso, completado.",
 	{
 		vault: vaultArg,
 		ruta: z.string().describe("Ruta de la nota relativa a la raíz del vault."),

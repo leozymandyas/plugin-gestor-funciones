@@ -15,8 +15,6 @@ import {
 	listFuncionalidades,
 	listFuncionalidadesDe,
 	listPendientes,
-	listSubPendientes,
-	listSubTareas,
 	listTareas,
 } from "./files";
 import { slugify } from "./utils";
@@ -32,18 +30,12 @@ export function estadoDeCarril(carril: string): string {
 	return slugify(carril);
 }
 
-interface ItemSub {
-	key: string;
-	file: TFile;
-}
-
 interface ItemCard {
 	key: string;
 	file: TFile;
 	nombre: string;
 	/** Texto de contexto: nombre de la épica o "Épica › Funcionalidad". */
 	contexto: string;
-	subs: ItemSub[];
 }
 
 type Grupo = "tareas" | "pendientes";
@@ -141,33 +133,19 @@ export class KanbanView extends ItemView {
 	/** Junta las incidencias de un contenedor (épica o funcionalidad). */
 	private recolectarContenedor(admin: string, ref: FuncRef, contexto: string): void {
 		for (const tarea of listTareas(this.app, ref.folder)) {
-			const subs = listSubTareas(tarea.folder).map((s) => ({
-				key: claveRelativa(admin, s.path),
-				file: s,
-			}));
 			this.tareas.push({
-				key: claveRelativa(admin, tarea.folder.path),
+				key: claveRelativa(admin, tarea.file.path),
 				file: tarea.file,
 				nombre: tarea.nombre,
 				contexto,
-				subs,
 			});
 		}
 		for (const pend of listPendientes(this.app, ref.folder)) {
-			const subs = pend.folder
-				? listSubPendientes(pend.folder).map((s) => ({
-						key: claveRelativa(admin, s.path),
-						file: s,
-				  }))
-				: [];
 			this.pendientes.push({
-				key: pend.folder
-					? claveRelativa(admin, pend.folder.path)
-					: claveRelativa(admin, pend.file.path),
+				key: claveRelativa(admin, pend.file.path),
 				file: pend.file,
 				nombre: pend.nombre,
 				contexto,
-				subs,
 			});
 		}
 	}
@@ -176,12 +154,6 @@ export class KanbanView extends ItemView {
 		return grupo === "tareas"
 			? this.plugin.settings.kanban.tareas
 			: this.plugin.settings.kanban.pendientes;
-	}
-
-	private mapaSubs(grupo: Grupo): Record<string, string> {
-		return grupo === "tareas"
-			? this.plugin.settings.kanban.subtareas
-			: this.plugin.settings.kanban.subpendientes;
 	}
 
 	private items(grupo: Grupo): ItemCard[] {
@@ -196,19 +168,11 @@ export class KanbanView extends ItemView {
 		let cambio = false;
 		const sincronizar = (grupo: Grupo) => {
 			const mapa = this.mapa(grupo);
-			const mapaSubs = this.mapaSubs(grupo);
 			for (const it of this.items(grupo)) {
 				const carril = this.carrilPorEstado(this.estadoDe(it.file));
 				if (carril && mapa[it.key] !== carril) {
 					mapa[it.key] = carril;
 					cambio = true;
-				}
-				for (const sub of it.subs) {
-					const carrilSub = this.carrilPorEstado(this.estadoDe(sub.file));
-					if (carrilSub && mapaSubs[sub.key] !== carrilSub) {
-						mapaSubs[sub.key] = carrilSub;
-						cambio = true;
-					}
 				}
 			}
 		};
@@ -247,12 +211,7 @@ export class KanbanView extends ItemView {
 			}
 		};
 		limpiar(k.tareas, new Set(this.tareas.map((it) => it.key)));
-		limpiar(k.subtareas, new Set(this.tareas.flatMap((it) => it.subs.map((s) => s.key))));
 		limpiar(k.pendientes, new Set(this.pendientes.map((it) => it.key)));
-		limpiar(
-			k.subpendientes,
-			new Set(this.pendientes.flatMap((it) => it.subs.map((s) => s.key)))
-		);
 	}
 
 	private async guardar(): Promise<void> {
@@ -437,38 +396,11 @@ export class KanbanView extends ItemView {
 
 		const head = card.createDiv({ cls: "gf-kanban-card-head" });
 		head.createDiv({ cls: "gf-kanban-card-nombre", text: it.nombre });
-		if (it.subs.length > 0) {
-			const expandida = this.expandidas.has(it.key);
-			const btn = head.createEl("span", {
-				cls: "gf-kanban-expand",
-				text: expandida ? "▲" : "▼",
-				attr: { role: "button", title: expandida ? "Colapsar" : "Ver sub-elementos" },
-			});
-			btn.addEventListener("click", (e) => {
-				e.stopPropagation();
-				if (expandida) this.expandidas.delete(it.key);
-				else this.expandidas.add(it.key);
-				this.render();
-			});
-		}
 
 		card.createDiv({ cls: "gf-kanban-card-func", text: it.contexto });
 		const fecha = this.fechaCreacion(it.file);
 		if (fecha) card.createDiv({ cls: "gf-kanban-card-fecha", text: fecha });
 
-		// Porcentaje de progreso según los sub-elementos completados.
-		if (it.subs.length > 0) {
-			const mapaSubs = this.mapaSubs(grupo);
-			const hechas = it.subs.filter(
-				(s) => estadoDeCarril(this.carrilDe(s.key, mapaSubs)) === "completado"
-			).length;
-			const pct = Math.round((hechas / it.subs.length) * 100);
-			const prog = card.createDiv({ cls: "gf-kanban-progreso" });
-			prog.createDiv({ cls: "gf-kanban-progreso-texto", text: `${pct}%` });
-			const barra = prog.createDiv({ cls: "gf-kanban-progreso-barra" });
-			const relleno = barra.createDiv({ cls: "gf-kanban-progreso-relleno" });
-			relleno.style.width = `${pct}%`;
-		}
 
 		card.addEventListener("click", () => {
 			void this.app.workspace.getLeaf(false).openFile(it.file);
@@ -487,88 +419,6 @@ export class KanbanView extends ItemView {
 			menu.showAtMouseEvent(e);
 		});
 
-		if (this.expandidas.has(it.key)) {
-			this.renderSubTablero(card, it, grupo);
-		}
-	}
-
-	/** Sub-tablero de sub-elementos: mini-carriles apilados con los carriles globales. */
-	private renderSubTablero(card: HTMLElement, it: ItemCard, grupo: Grupo): void {
-		const k = this.plugin.settings.kanban;
-		const sub = card.createDiv({ cls: "gf-kanban-subboard" });
-		sub.addEventListener("click", (e) => e.stopPropagation());
-
-		for (const carril of k.carriles) {
-			const mini = sub.createDiv({ cls: "gf-kanban-minilane" });
-			mini.addEventListener("dragover", (e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				mini.addClass("gf-drop");
-			});
-			mini.addEventListener("dragleave", () => mini.removeClass("gf-drop"));
-			mini.addEventListener("drop", (e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				mini.removeClass("gf-drop");
-				const payload = leerPayload(e);
-				if (payload?.tipo === "sub" && payload.cardKey === it.key && payload.grupo === grupo) {
-					void this.moverSub(grupo, payload.valor, carril);
-				}
-			});
-			mini.createDiv({ cls: "gf-kanban-minilane-titulo", text: carril });
-
-			const mapaSubs = this.mapaSubs(grupo);
-			const subsAqui = it.subs.filter((s) => this.carrilDe(s.key, mapaSubs) === carril);
-			for (const s of subsAqui) {
-				this.renderSubTarjeta(mini, s, it, carril, grupo);
-			}
-		}
-	}
-
-	private renderSubTarjeta(
-		mini: HTMLElement,
-		s: ItemSub,
-		it: ItemCard,
-		carrilActual: string,
-		grupo: Grupo
-	): void {
-		const fm = this.app.metadataCache.getFileCache(s.file)?.frontmatter;
-		const nombre = fm?.nombre ? String(fm.nombre) : s.file.basename;
-		const card = mini.createDiv({ cls: "gf-kanban-subcard" });
-		card.draggable = true;
-		card.addEventListener("dragstart", (e) => {
-			e.stopPropagation();
-			e.dataTransfer?.setData(
-				"text/plain",
-				JSON.stringify({
-					tipo: "sub",
-					grupo,
-					valor: s.key,
-					cardKey: it.key,
-				} satisfies DragPayload)
-			);
-		});
-		card.createDiv({ cls: "gf-kanban-card-nombre", text: nombre });
-		const fecha = this.fechaCreacion(s.file);
-		if (fecha) card.createDiv({ cls: "gf-kanban-card-fecha", text: fecha });
-		card.addEventListener("click", (e) => {
-			e.stopPropagation();
-			void this.app.workspace.getLeaf(false).openFile(s.file);
-		});
-		card.addEventListener("contextmenu", (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			const menu = new Menu();
-			for (const carril of this.plugin.settings.kanban.carriles) {
-				if (carril === carrilActual) continue;
-				menu.addItem((item) =>
-					item
-						.setTitle(`Mover a: ${carril}`)
-						.onClick(() => void this.moverSub(grupo, s.key, carril))
-				);
-			}
-			menu.showAtMouseEvent(e);
-		});
 	}
 
 	private fechaCreacion(file: TFile): string {
@@ -589,18 +439,7 @@ export class KanbanView extends ItemView {
 		this.render();
 	}
 
-	private async moverSub(grupo: Grupo, key: string, carril: string): Promise<void> {
-		const sub = this.items(grupo)
-			.flatMap((i) => i.subs)
-			.find((s) => s.key === key);
-		if (!sub) return;
-		this.mapaSubs(grupo)[key] = carril;
-		await this.guardar();
-		await this.app.fileManager.processFrontMatter(sub.file, (fm) => {
-			fm.estado = estadoDeCarril(carril);
-		});
-		this.render();
-	}
+
 
 	private async moverCarril(nombre: string, destino: number): Promise<void> {
 		const k = this.plugin.settings.kanban;
@@ -643,7 +482,7 @@ export class KanbanView extends ItemView {
 			}
 			terminado = true;
 			k.carriles[indice] = nuevo;
-			for (const mapa of [k.tareas, k.subtareas, k.pendientes, k.subpendientes]) {
+			for (const mapa of [k.tareas, k.pendientes]) {
 				for (const [key, carril] of Object.entries(mapa)) {
 					if (carril === original) mapa[key] = nuevo;
 				}

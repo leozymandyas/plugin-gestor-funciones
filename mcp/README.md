@@ -108,13 +108,12 @@ Obsidian (puede tardar un instante o requerir cambiar de nota para refrescar).
 |---|---|
 | `listar_vaults` | Lista los vaults configurados. |
 | `listar_epicas` | Lista las épicas (activas e inactivas) de un vault. |
-| `detalle_epica` | Detalle completo de una épica: funcionalidades, tareas, sub-tareas, pendientes, apuntes, reuniones, insumos, historias. |
+| `detalle_epica` | Detalle completo de una épica: funcionalidades, tareas, pendientes, apuntes, reuniones, insumos, historias. |
 | `leer_nota` | Lee el Markdown completo de una nota. |
 | `buscar` | Busca texto en nombres y contenido de las notas. |
 | `crear_epica` | Crea una épica (elemento principal). |
 | `crear_funcionalidad` | Crea una funcionalidad dentro de una épica. |
 | `crear_tarea` | Crea una tarea y la enlaza en el dashboard. |
-| `crear_subtarea` | Crea una sub-tarea dentro de una tarea. |
 | `crear_pendiente` | Crea un pendiente. |
 | `crear_apunte` | Crea un apunte (opcionalmente con texto). |
 | `crear_reunion` | Crea una nota de reunión. |

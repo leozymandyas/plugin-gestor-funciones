@@ -30,8 +30,6 @@ import {
 	CrearInsumoModal,
 	CrearPendienteModal,
 	CrearReunionModal,
-	CrearSubPendienteModal,
-	CrearSubTareaModal,
 	CrearTareaModal,
 	GestionColaboradoresModal,
 	MoverEpicaModal,
@@ -42,11 +40,9 @@ export type TipoModal =
 	| "crearfn"
 	| "estadofn"
 	| "tarea"
-	| "subtarea"
 	| "apunte"
 	| "reunion"
 	| "pendiente"
-	| "subpendiente"
 	| "insumo"
 	| "historia"
 	| "sprint"
@@ -113,11 +109,6 @@ export default class GestorFuncionesPlugin extends Plugin {
 			callback: () => this.abrirModal("tarea"),
 		});
 		this.addCommand({
-			id: "crear-sub-tarea",
-			name: "Crear sub-tarea",
-			callback: () => this.abrirModal("subtarea"),
-		});
-		this.addCommand({
 			id: "crear-apunte",
 			name: "Crear apunte",
 			callback: () => this.abrirModal("apunte"),
@@ -131,11 +122,6 @@ export default class GestorFuncionesPlugin extends Plugin {
 			id: "crear-pendiente",
 			name: "Crear pendiente",
 			callback: () => this.abrirModal("pendiente"),
-		});
-		this.addCommand({
-			id: "crear-sub-pendiente",
-			name: "Crear sub-pendiente",
-			callback: () => this.abrirModal("subpendiente"),
 		});
 		this.addCommand({
 			id: "crear-insumo",
@@ -215,9 +201,6 @@ export default class GestorFuncionesPlugin extends Plugin {
 			case "tarea":
 				new CrearTareaModal(this).open();
 				break;
-			case "subtarea":
-				new CrearSubTareaModal(this).open();
-				break;
 			case "apunte":
 				new CrearApunteModal(this).open();
 				break;
@@ -226,9 +209,6 @@ export default class GestorFuncionesPlugin extends Plugin {
 				break;
 			case "pendiente":
 				new CrearPendienteModal(this).open();
-				break;
-			case "subpendiente":
-				new CrearSubPendienteModal(this).open();
 				break;
 			case "insumo":
 				new CrearInsumoModal(this).open();
@@ -349,9 +329,7 @@ export default class GestorFuncionesPlugin extends Plugin {
 			kanban: {
 				carriles,
 				tareas: { ...(data.kanban?.tareas ?? {}) },
-				subtareas: { ...(data.kanban?.subtareas ?? {}) },
 				pendientes: { ...(data.kanban?.pendientes ?? {}) },
-				subpendientes: { ...(data.kanban?.subpendientes ?? {}) },
 				filtroSprints: {
 					desde: filtro?.desde && filtro.desde >= 1 && filtro.desde <= 52 ? filtro.desde : 1,
 					hasta: filtro?.hasta && filtro.hasta >= 1 && filtro.hasta <= 52 ? filtro.hasta : 52,

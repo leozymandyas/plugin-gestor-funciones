@@ -95,33 +95,8 @@ fecha-creacion: ${fecha}
 ## Descripción
 <!-- Escribe aquí los detalles de la tarea -->
 
-## Sub-tareas
-<!-- Las sub-tareas aparecen aquí automáticamente cuando las creas desde el plugin -->
-
 ## Notas
 <!-- Apuntes relacionados a esta tarea -->
-`;
-}
-
-export function subTarea(
-	nombre: string,
-	tareaSlug: string,
-	funcSlug: string,
-	fecha: string
-): string {
-	return `---
-tipo: sub-tarea
-tarea-padre: "[[${tareaSlug}]]"
-funcionalidad: "[[${funcSlug}]]"
-nombre: "${escapeYaml(nombre)}"
-estado: pendiente
-fecha-creacion: ${fecha}
----
-
-# ${nombre}
-
-## Descripción
-<!-- Escribe aquí los detalles de la sub-tarea -->
 `;
 }
 
@@ -158,31 +133,6 @@ fecha: ${fecha}
 
 ## Criterio de completado
 <!-- ¿Cuándo se considera resuelto este pendiente? -->
-
-## Sub-pendientes
-<!-- Los sub-pendientes aparecen aquí automáticamente cuando los creas desde el plugin -->
-`;
-}
-
-export function subPendiente(
-	nombre: string,
-	pendienteSlug: string,
-	funcSlug: string,
-	fecha: string
-): string {
-	return `---
-tipo: sub-pendiente
-pendiente-padre: "[[${pendienteSlug}]]"
-epica: "[[${funcSlug}]]"
-nombre: "${escapeYaml(nombre)}"
-estado: pendiente
-fecha-creacion: ${fecha}
----
-
-# ${nombre}
-
-## Descripción
-<!-- Escribe aquí los detalles del sub-pendiente -->
 `;
 }
 

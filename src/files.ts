@@ -41,20 +41,16 @@ export interface TareaRef {
 	slug: string;
 	nombre: string;
 	file: TFile;
-	/** Carpeta de la tarea (cada tarea es una carpeta con su .md adentro). */
-	folder: TFolder;
 }
 
 export interface PendienteRef {
 	slug: string;
 	nombre: string;
 	file: TFile;
-	/** Carpeta del pendiente; null si es un archivo plano (formato anterior). */
-	folder: TFolder | null;
 }
 
 export interface Incidencia {
-	tipo: "tarea" | "sub-tarea" | "pendiente" | "sub-pendiente";
+	tipo: "tarea" | "pendiente";
 	file: TFile;
 	nombre: string;
 	/** 0 para tareas/pendientes, 1 para sub-elementos. */
@@ -150,35 +146,19 @@ export function listTareas(app: App, funcFolder: TFolder): TareaRef[] {
 	);
 	if (!dir) return [];
 	const out: TareaRef[] = [];
-	// Cada tarea es una carpeta dentro de tareas/ con su .md principal adentro.
 	for (const child of dir.children) {
-		if (!(child instanceof TFolder)) continue;
-		const main = child.children.find(
-			(c): c is TFile => c instanceof TFile && c.extension === "md" && c.basename === child.name
-		);
-		if (!main) continue;
-		out.push({
-			slug: child.name,
-			nombre: nombreDesdeFrontmatter(app, main, child.name),
-			file: main,
-			folder: child,
-		});
+		if (child instanceof TFile && child.extension === "md") {
+			out.push({
+				slug: child.basename,
+				nombre: nombreDesdeFrontmatter(app, child, child.basename),
+				file: child,
+			});
+		}
 	}
 	return out.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
 
-/** Sub-tareas de una tarea: archivos en <carpeta-tarea>/subtareas/. */
-export function listSubTareas(tareaFolder: TFolder): TFile[] {
-	const dir = tareaFolder.children.find(
-		(c): c is TFolder => c instanceof TFolder && c.name === "subtareas"
-	);
-	if (!dir) return [];
-	return dir.children
-		.filter((c): c is TFile => c instanceof TFile && c.extension === "md")
-		.sort((a, b) => a.basename.localeCompare(b.basename, "es"));
-}
-
-/** Pendientes: carpeta por pendiente (formato actual) o archivo plano (anterior). */
+/** Pendientes: archivo plano en formato actual. */
 export function listPendientes(app: App, funcFolder: TFolder): PendienteRef[] {
 	const dir = funcFolder.children.find(
 		(c): c is TFolder => c instanceof TFolder && c.name === "pendientes"
@@ -191,60 +171,20 @@ export function listPendientes(app: App, funcFolder: TFolder): PendienteRef[] {
 				slug: child.basename,
 				nombre: nombreDesdeFrontmatter(app, child, child.basename),
 				file: child,
-				folder: null,
-			});
-		} else if (child instanceof TFolder) {
-			const main = child.children.find(
-				(c): c is TFile => c instanceof TFile && c.extension === "md" && c.basename === child.name
-			);
-			if (!main) continue;
-			out.push({
-				slug: child.name,
-				nombre: nombreDesdeFrontmatter(app, main, child.name),
-				file: main,
-				folder: child,
 			});
 		}
 	}
 	return out.sort((a, b) => a.slug.localeCompare(b.slug, "es"));
 }
 
-export function listSubPendientes(pendFolder: TFolder): TFile[] {
-	const dir = pendFolder.children.find(
-		(c): c is TFolder => c instanceof TFolder && c.name === "subpendientes"
-	);
-	if (!dir) return [];
-	return dir.children
-		.filter((c): c is TFile => c instanceof TFile && c.extension === "md")
-		.sort((a, b) => a.basename.localeCompare(b.basename, "es"));
-}
-
-/** Todas las incidencias de una épica: tareas, sub-tareas, pendientes y sub-pendientes. */
+/** Todas las incidencias de una épica: tareas y pendientes. */
 export function listIncidencias(app: App, func: FuncRef): Incidencia[] {
 	const out: Incidencia[] = [];
 	for (const t of listTareas(app, func.folder)) {
 		out.push({ tipo: "tarea", file: t.file, nombre: t.nombre, nivel: 0 });
-		for (const s of listSubTareas(t.folder)) {
-			out.push({
-				tipo: "sub-tarea",
-				file: s,
-				nombre: nombreDesdeFrontmatter(app, s, s.basename),
-				nivel: 1,
-			});
-		}
 	}
 	for (const p of listPendientes(app, func.folder)) {
 		out.push({ tipo: "pendiente", file: p.file, nombre: p.nombre, nivel: 0 });
-		if (p.folder) {
-			for (const s of listSubPendientes(p.folder)) {
-				out.push({
-					tipo: "sub-pendiente",
-					file: s,
-					nombre: nombreDesdeFrontmatter(app, s, s.basename),
-					nivel: 1,
-				});
-			}
-		}
 	}
 	return out;
 }
@@ -308,9 +248,8 @@ export async function createFuncionalidad(
 	const funcPath = normalizePath(`${adminPath}/${slug}`);
 	if (app.vault.getAbstractFileByPath(funcPath)) throw new YaExisteError();
 	await app.vault.createFolder(funcPath);
-	// Solo tareas/ existe por defecto; las demás carpetas (apuntes, reuniones,
-	// pendientes, insumos, historias) se crean al usar su botón del panel.
-	await app.vault.createFolder(`${funcPath}/tareas`);
+	// Ninguna subcarpeta existe por defecto: tareas/, apuntes/, reuniones/,
+	// pendientes/, insumos/ e historias/ se crean al crear su primer elemento.
 	return app.vault.create(`${funcPath}/${slug}.md`, tpl.funcionalidad(nombre, hoy()));
 }
 
@@ -320,32 +259,13 @@ export async function createTarea(
 	slug: string,
 	nombre: string
 ): Promise<TFile> {
-	// Cada tarea crea su propia carpeta; subtareas/ no se crea hasta la primera sub-tarea.
 	await ensureFolder(app, `${func.folder.path}/tareas`);
-	const dirTarea = normalizePath(`${func.folder.path}/tareas/${slug}`);
-	await app.vault.createFolder(dirTarea);
+	const dirTarea = normalizePath(`${func.folder.path}/tareas`);
 	const file = await app.vault.create(
 		`${dirTarea}/${slug}.md`,
 		tpl.tarea(nombre, func.slug, hoy())
 	);
 	await appendToSection(app, func.file, "## Tareas", `- [ ] [[${slug}|${nombre}]]`);
-	return file;
-}
-
-export async function createSubTarea(
-	app: App,
-	func: FuncRef,
-	tarea: TareaRef,
-	slug: string,
-	nombre: string
-): Promise<TFile> {
-	const dir = `${tarea.folder.path}/subtareas`;
-	await ensureFolder(app, dir);
-	const file = await app.vault.create(
-		normalizePath(`${dir}/${slug}.md`),
-		tpl.subTarea(nombre, tarea.slug, func.slug, hoy())
-	);
-	await appendToSection(app, tarea.file, "## Sub-tareas", `- [ ] [[${slug}|${nombre}]]`);
 	return file;
 }
 
@@ -472,48 +392,14 @@ export async function createPendiente(
 	nombre: string,
 	fecha: string
 ): Promise<TFile> {
-	// Cada pendiente crea su propia carpeta (como las tareas); subpendientes/
-	// no se crea hasta el primer sub-pendiente.
 	await ensureFolder(app, `${func.folder.path}/pendientes`);
-	const dirPend = normalizePath(`${func.folder.path}/pendientes/${base}`);
-	await app.vault.createFolder(dirPend);
+	const dirPend = normalizePath(`${func.folder.path}/pendientes`);
 	const file = await app.vault.create(
 		`${dirPend}/${base}.md`,
 		tpl.pendiente(nombre, func.slug, fecha)
 	);
 	// appendToSection crea la sección ## Pendientes si la nota principal no la tiene.
 	await appendToSection(app, func.file, "## Pendientes", `- [ ] [[${base}|${nombre}]] — ${fecha}`);
-	return file;
-}
-
-export async function createSubPendiente(
-	app: App,
-	func: FuncRef,
-	pendiente: PendienteRef,
-	slug: string,
-	nombre: string
-): Promise<TFile> {
-	let carpeta = pendiente.folder;
-	if (!carpeta) {
-		// Pendiente en formato plano (versiones anteriores): se convierte en
-		// carpeta y la nota se mueve adentro. renameFile actualiza wikilinks.
-		const dirPath = normalizePath(`${func.folder.path}/pendientes/${pendiente.slug}`);
-		await app.vault.createFolder(dirPath);
-		await app.fileManager.renameFile(
-			pendiente.file,
-			normalizePath(`${dirPath}/${pendiente.slug}.md`)
-		);
-		const f = app.vault.getAbstractFileByPath(dirPath);
-		if (!(f instanceof TFolder)) throw new Error("No se pudo convertir el pendiente en carpeta.");
-		carpeta = f;
-	}
-	const dir = `${carpeta.path}/subpendientes`;
-	await ensureFolder(app, dir);
-	const file = await app.vault.create(
-		normalizePath(`${dir}/${slug}.md`),
-		tpl.subPendiente(nombre, pendiente.slug, func.slug, hoy())
-	);
-	await appendToSection(app, pendiente.file, "## Sub-pendientes", `- [ ] [[${slug}|${nombre}]]`);
 	return file;
 }
 

@@ -7,10 +7,7 @@ export interface KanbanState {
 	carriles: string[];
 	/** Ruta relativa de la tarea (sin .md) → nombre del carril donde está su tarjeta. */
 	tareas: Record<string, string>;
-	/** Ruta relativa de la sub-tarea (sin .md) → nombre del carril. */
-	subtareas: Record<string, string>;
 	pendientes: Record<string, string>;
-	subpendientes: Record<string, string>;
 	/** Filtro de intervalo de sprints; se conserva entre sesiones. */
 	filtroSprints: { desde: number; hasta: number };
 }
@@ -57,9 +54,7 @@ export const DEFAULT_SETTINGS: GestorSettings = {
 	kanban: {
 		carriles: [...CARRILES_DEFECTO],
 		tareas: {},
-		subtareas: {},
 		pendientes: {},
-		subpendientes: {},
 		filtroSprints: { desde: 1, hasta: 52 },
 	},
 };

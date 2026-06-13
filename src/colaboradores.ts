@@ -192,9 +192,7 @@ export class TareasColaboradorView extends ItemView {
 	private tipoLegible(tipo: Incidencia["tipo"]): string {
 		const nombres: Record<Incidencia["tipo"], string> = {
 			tarea: "Tarea",
-			"sub-tarea": "Sub-tarea",
 			pendiente: "Pendiente",
-			"sub-pendiente": "Sub-pendiente",
 		};
 		return nombres[tipo];
 	}
