@@ -1,4 +1,4 @@
-# Gestión Producto
+# Gestion Producto
 
 Plugin de Obsidian para Product Owners y equipos que gestionan el desarrollo de un
 producto. Concentra toda la información de una **épica** —funcionalidades, tareas,
@@ -60,7 +60,7 @@ automáticamente y con nombres "slugificados" (`Diseñar pantalla de login` →
 > Disponible cuando el plugin sea aprobado en el catálogo oficial.
 
 1. Abre **Settings → Community plugins → Browse**.
-2. Busca **Gestión Producto**.
+2. Busca **Gestion Producto**.
 3. **Install** y luego **Enable**.
 
 ### Instalación manual
@@ -74,7 +74,7 @@ automáticamente y con nombres "slugificados" (`Diseñar pantalla de login` →
    > La carpeta `.obsidian` está oculta. En macOS pulsa `Cmd + Shift + .` en Finder para verla.
 3. Copia los tres archivos descargados ahí dentro.
 4. En Obsidian, ve a **Settings → Community plugins**, activa los plugins de la comunidad
-   si te lo pide y enciende **Gestión Producto**.
+   si te lo pide y enciende **Gestion Producto**.
 
 ## Primeros pasos
 
@@ -86,7 +86,7 @@ automáticamente y con nombres "slugificados" (`Diseñar pantalla de login` →
 
 ## Configuración
 
-En **Settings → Gestión Producto** puedes personalizar:
+En **Settings → Gestion Producto** puedes personalizar:
 
 - **Estados de épica**: los estados disponibles (los predeterminados no se pueden borrar;
   puedes añadir los tuyos).
