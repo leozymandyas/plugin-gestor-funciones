@@ -182,7 +182,7 @@ export class KanbanView extends ItemView {
 	}
 
 	private estadoDe(file: TFile): string | undefined {
-		const estado = this.app.metadataCache.getFileCache(file)?.frontmatter?.estado;
+		const estado = (this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined)?.estado;
 		return estado ? String(estado) : undefined;
 	}
 
@@ -358,11 +358,11 @@ export class KanbanView extends ItemView {
 				del.setAttr("title", "Mueve las tarjetas antes de eliminar este carril.");
 			} else {
 				del.setAttr("title", "Eliminar carril");
-				del.addEventListener("click", async () => {
+				del.addEventListener("click", () => void (async () => {
 					k.carriles.splice(indice, 1);
 					await this.guardar();
 					this.render();
-				});
+				})());
 			}
 		}
 
@@ -422,7 +422,7 @@ export class KanbanView extends ItemView {
 	}
 
 	private fechaCreacion(file: TFile): string {
-		const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+		const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
 		const valor = fm?.["fecha-creacion"] ?? fm?.["fecha"];
 		const m = String(valor ?? "").match(/^(\d{4})-(\d{2})-(\d{2})/);
 		return m ? `${m[3]}/${m[2]}/${m[1]}` : "";
@@ -433,7 +433,7 @@ export class KanbanView extends ItemView {
 		if (!it) return;
 		this.mapa(grupo)[key] = carril;
 		await this.guardar();
-		await this.app.fileManager.processFrontMatter(it.file, (fm) => {
+		await this.app.fileManager.processFrontMatter(it.file, (fm: Record<string, unknown>) => {
 			fm.estado = estadoDeCarril(carril);
 		});
 		this.render();

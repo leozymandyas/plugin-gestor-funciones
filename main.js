@@ -583,10 +583,10 @@ var GestorSettingTab = class extends import_obsidian2.PluginSettingTab {
         value: etiqueta.color
       });
       color.setAttr("title", "Color de la etiqueta");
-      color.addEventListener("change", async () => {
+      color.addEventListener("change", () => void (async () => {
         etiqueta.color = color.value;
         await this.plugin.saveSettings();
-      });
+      })());
       const nombre = fila.createEl("span", { text: etiqueta.nombre, cls: "gf-etiqueta-nombre" });
       nombre.setAttr("title", "Clic para editar");
       nombre.addEventListener("click", () => this.editarEtiqueta(cont, fila, nombre, indice));
@@ -695,11 +695,11 @@ var GestorSettingTab = class extends import_obsidian2.PluginSettingTab {
       } else {
         const del = fila.createEl("span", { text: "\xD7", cls: "gf-etiqueta-del" });
         del.setAttr("title", "Eliminar estado");
-        del.addEventListener("click", async () => {
+        del.addEventListener("click", () => void (async () => {
           estados.splice(indice, 1);
           await this.plugin.saveSettings();
           this.renderEstados(cont);
-        });
+        })());
       }
     });
     const addRow = cont.createDiv({ cls: "gf-etiqueta-add" });
@@ -793,7 +793,7 @@ var ConfirmarEliminarEtiquetaModal = class extends import_obsidian2.Modal {
     const eliminar = row.createEl("button", { text: "Eliminar", cls: "mod-warning" });
     eliminar.addEventListener("click", () => {
       this.close();
-      this.onConfirmar();
+      void this.onConfirmar();
     });
     const cancelar = row.createEl("button", { text: "Cancelar" });
     cancelar.addEventListener("click", () => this.close());
@@ -1119,7 +1119,7 @@ var AccionesView = class extends import_obsidian4.ItemView {
       const icono = btn.createSpan({ cls: "gf-accion-icono" });
       (0, import_obsidian4.setIcon)(icono, "folder-plus");
       btn.createSpan({ text: "Crear carpetas de gesti\xF3n" });
-      btn.addEventListener("click", async () => {
+      btn.addEventListener("click", () => void (async () => {
         try {
           await crearCarpetasGestion(this.app);
           new import_obsidian4.Notice("Gesti\xF3n Producto: carpetas de gesti\xF3n creadas.");
@@ -1128,7 +1128,7 @@ var AccionesView = class extends import_obsidian4.ItemView {
           console.error(e);
           new import_obsidian4.Notice("Gesti\xF3n Producto: no se pudieron crear las carpetas.");
         }
-      });
+      })());
       cont.createDiv({
         cls: "gf-campo-aviso",
         text: 'Se crear\xE1n "\xC9picas activas" y "\xC9picas inactivas" en la ra\xEDz del vault.'
@@ -1457,11 +1457,11 @@ var KanbanView = class extends import_obsidian5.ItemView {
         del.setAttr("title", "Mueve las tarjetas antes de eliminar este carril.");
       } else {
         del.setAttr("title", "Eliminar carril");
-        del.addEventListener("click", async () => {
+        del.addEventListener("click", () => void (async () => {
           k.carriles.splice(indice, 1);
           await this.guardar();
           this.render();
-        });
+        })());
       }
     }
     const cuerpo = col.createDiv({ cls: "gf-kanban-cuerpo" });
@@ -1846,7 +1846,7 @@ var GestorModal = class extends import_obsidian6.Modal {
   botones(onCrear, textoPrimario = "Crear") {
     const row = this.contentEl.createDiv({ cls: "gf-botones" });
     this.crearBtn = row.createEl("button", { text: textoPrimario, cls: "mod-cta" });
-    this.crearBtn.addEventListener("click", onCrear);
+    this.crearBtn.addEventListener("click", () => void onCrear());
     const cancelar = row.createEl("button", { text: "Cancelar" });
     cancelar.addEventListener("click", () => this.close());
   }

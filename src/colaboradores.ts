@@ -180,7 +180,7 @@ export class TareasColaboradorView extends ItemView {
 	}
 
 	private estadoDe(file: TFile): string {
-		const estado = this.app.metadataCache.getFileCache(file)?.frontmatter?.estado;
+		const estado = (this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined)?.estado;
 		return estado ? String(estado) : "pendiente";
 	}
 

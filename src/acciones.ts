@@ -130,7 +130,7 @@ export class AccionesView extends ItemView {
 			const icono = btn.createSpan({ cls: "gf-accion-icono" });
 			setIcon(icono, "folder-plus");
 			btn.createSpan({ text: "Crear carpetas de gestión" });
-			btn.addEventListener("click", async () => {
+			btn.addEventListener("click", () => void (async () => {
 				try {
 					await crearCarpetasGestion(this.app);
 					new Notice("Gestión Producto: carpetas de gestión creadas.");
@@ -139,7 +139,7 @@ export class AccionesView extends ItemView {
 					console.error(e);
 					new Notice("Gestión Producto: no se pudieron crear las carpetas.");
 				}
-			});
+			})());
 			cont.createDiv({
 				cls: "gf-campo-aviso",
 				text: 'Se crearán "Épicas activas" y "Épicas inactivas" en la raíz del vault.',

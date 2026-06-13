@@ -212,7 +212,7 @@ abstract class GestorModal extends Modal {
 
 	protected async aplicarAsignados(file: TFile, asignados: string[]): Promise<void> {
 		if (asignados.length === 0) return;
-		await this.app.fileManager.processFrontMatter(file, (fm) => {
+		await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 			fm.asignados = [...asignados].sort((a, b) => a.localeCompare(b, "es"));
 		});
 	}
@@ -227,10 +227,10 @@ abstract class GestorModal extends Modal {
 		campo.error.setText("");
 	}
 
-	protected botones(onCrear: () => void, textoPrimario = "Crear"): void {
+	protected botones(onCrear: () => void | Promise<void>, textoPrimario = "Crear"): void {
 		const row = this.contentEl.createDiv({ cls: "gf-botones" });
 		this.crearBtn = row.createEl("button", { text: textoPrimario, cls: "mod-cta" });
-		this.crearBtn.addEventListener("click", onCrear);
+		this.crearBtn.addEventListener("click", () => void onCrear());
 		const cancelar = row.createEl("button", { text: "Cancelar" });
 		cancelar.addEventListener("click", () => this.close());
 	}
@@ -1171,7 +1171,7 @@ export class AsignarColaboradorModal extends GestorModal {
 					if (actuales.size === previos.length && previos.every((p) => actuales.has(p))) {
 						continue;
 					}
-					await this.app.fileManager.processFrontMatter(fila.file, (fm) => {
+					await this.app.fileManager.processFrontMatter(fila.file, (fm: Record<string, unknown>) => {
 						fm.asignados = [...actuales].sort((a, b) => a.localeCompare(b, "es"));
 					});
 				}
@@ -1319,7 +1319,7 @@ export class CambiarEstadoFuncionalidadModal extends GestorModal {
 			}
 			if (!ok || !fnSel) return;
 			try {
-				await this.app.fileManager.processFrontMatter(fnSel.file, (fm) => {
+				await this.app.fileManager.processFrontMatter(fnSel.file, (fm: Record<string, unknown>) => {
 					fm.estado = valor;
 				});
 				this.close();
@@ -1373,7 +1373,7 @@ export class CambiarEstadoModal extends GestorModal {
 			}
 			if (!ok || !f) return;
 			try {
-				await this.app.fileManager.processFrontMatter(f.file, (fm) => {
+				await this.app.fileManager.processFrontMatter(f.file, (fm: Record<string, unknown>) => {
 					fm.estado = valor;
 				});
 				this.close();

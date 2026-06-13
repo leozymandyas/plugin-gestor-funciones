@@ -191,7 +191,7 @@ function itemTarea(
 	const cb = li.createEl("input", { type: "checkbox", cls: "task-list-item-checkbox" });
 	cb.checked = completado;
 	cb.addEventListener("change", () => {
-		void app.fileManager.processFrontMatter(file, (f) => {
+		void app.fileManager.processFrontMatter(file, (f: Record<string, unknown>) => {
 			f.estado = cb.checked ? "completado" : "pendiente";
 		});
 		li.toggleClass("is-checked", cb.checked);

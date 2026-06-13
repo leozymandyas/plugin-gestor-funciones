@@ -113,10 +113,10 @@ export class GestorSettingTab extends PluginSettingTab {
 				value: etiqueta.color,
 			});
 			color.setAttr("title", "Color de la etiqueta");
-			color.addEventListener("change", async () => {
+			color.addEventListener("change", () => void (async () => {
 				etiqueta.color = color.value;
 				await this.plugin.saveSettings();
-			});
+			})());
 
 			const nombre = fila.createEl("span", { text: etiqueta.nombre, cls: "gf-etiqueta-nombre" });
 			nombre.setAttr("title", "Clic para editar");
@@ -240,11 +240,11 @@ export class GestorSettingTab extends PluginSettingTab {
 			} else {
 				const del = fila.createEl("span", { text: "×", cls: "gf-etiqueta-del" });
 				del.setAttr("title", "Eliminar estado");
-				del.addEventListener("click", async () => {
+				del.addEventListener("click", () => void (async () => {
 					estados.splice(indice, 1);
 					await this.plugin.saveSettings();
 					this.renderEstados(cont);
-				});
+				})());
 			}
 		});
 
@@ -340,7 +340,7 @@ class ConfirmarEliminarEtiquetaModal extends Modal {
 	constructor(
 		plugin: GestorFuncionesPlugin,
 		private etiqueta: string,
-		private onConfirmar: () => void
+		private onConfirmar: () => void | Promise<void>
 	) {
 		super(plugin.app);
 	}
@@ -354,7 +354,7 @@ class ConfirmarEliminarEtiquetaModal extends Modal {
 		const eliminar = row.createEl("button", { text: "Eliminar", cls: "mod-warning" });
 		eliminar.addEventListener("click", () => {
 			this.close();
-			this.onConfirmar();
+			void this.onConfirmar();
 		});
 		const cancelar = row.createEl("button", { text: "Cancelar" });
 		cancelar.addEventListener("click", () => this.close());

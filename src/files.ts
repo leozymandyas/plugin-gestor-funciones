@@ -69,7 +69,7 @@ export async function ensureFolder(app: App, path: string): Promise<TFolder> {
 }
 
 function nombreDesdeFrontmatter(app: App, file: TFile, fallback: string): string {
-	const nombre = app.metadataCache.getFileCache(file)?.frontmatter?.nombre;
+	const nombre = (app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined)?.nombre;
 	return nombre ? String(nombre) : fallback;
 }
 
@@ -191,7 +191,7 @@ export function listIncidencias(app: App, func: FuncRef): Incidencia[] {
 
 /** Colaboradores asignados en el frontmatter `asignados` de una incidencia. */
 export function getAsignados(app: App, file: TFile): string[] {
-	const valor = app.metadataCache.getFileCache(file)?.frontmatter?.asignados;
+	const valor = (app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined)?.asignados;
 	return Array.isArray(valor) ? valor.map(String) : [];
 }
 
