@@ -3,7 +3,7 @@
 	"name": "Gestión Producto",
 	"version": "1.6.0",
 	"minAppVersion": "1.0.0",
-	"description": "Concentra toda la información de una épica de producto en un solo lugar: tareas, sub-tareas, apuntes, reuniones, pendientes, insumos, historias, sprints y roadmap como notas Markdown dentro del vault.",
+	"description": "Concentra toda la información de una épica de producto en un solo lugar: tareas, apuntes, reuniones, pendientes, insumos, historias, sprints y roadmap como notas Markdown dentro del vault.",
 	"author": "Leonardo Ruano",
 	"authorUrl": "https://github.com/leozymandyas",
 	"isDesktopOnly": true

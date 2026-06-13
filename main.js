@@ -490,7 +490,7 @@ async function guardarSprints(app, func, sprints) {
   const contenido = lineas.join("\n");
   const existente = archivoSprints(app, func);
   if (existente) {
-    await app.vault.modify(existente, contenido);
+    await app.vault.process(existente, () => contenido);
     return existente;
   }
   return app.vault.create((0, import_obsidian.normalizePath)(`${func.folder.path}/sprints.md`), contenido);

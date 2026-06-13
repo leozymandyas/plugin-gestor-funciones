@@ -379,7 +379,7 @@ export async function guardarSprints(
 	const contenido = lineas.join("\n");
 	const existente = archivoSprints(app, func);
 	if (existente) {
-		await app.vault.modify(existente, contenido);
+		await app.vault.process(existente, () => contenido);
 		return existente;
 	}
 	return app.vault.create(normalizePath(`${func.folder.path}/sprints.md`), contenido);
